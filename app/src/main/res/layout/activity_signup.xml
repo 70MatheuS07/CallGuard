@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".UI.LoginActivity">
+
+    <ImageView
+        android:id="@+id/image_logo"
+        android:src="@drawable/callguardlogo"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentTop="true"
+        android:layout_margin="20dp"
+        />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Callguard"
+        android:layout_below="@id/image_logo"
+        android:gravity="center"
+        android:textSize="50sp"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:orientation="vertical"
+        android:padding="10dp">
+
+        <EditText
+            android:drawableStart="@drawable/baseline_email_24"
+            android:id="@+id/edit_email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:hint="@string/e_mail"/>
+
+        <EditText
+            android:drawableStart="@drawable/baseline_person_24"
+            android:id="@+id/edit_user"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:hint="@string/username"/>
+        <EditText
+            android:drawableStart="@drawable/baseline_local_phone_24"
+            android:id="@+id/edit_number_signup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:hint="@string/celular"/>
+
+        <EditText
+            android:drawableStart="@drawable/baseline_key_24"
+            android:id="@+id/edit_pass"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:hint="@string/senha"
+            android:inputType="textPassword"/>
+
+        <EditText
+            android:drawableStart="@drawable/baseline_key_24"
+            android:id="@+id/edit_confirm_pass"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:hint="@string/confirmar_senha"
+            android:inputType="textPassword"/>
+
+        <Button
+            android:id="@+id/button_signup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/cadastrar"/>
+
+
+    </LinearLayout>
+
+
+</RelativeLayout>
