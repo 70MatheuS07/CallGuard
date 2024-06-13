@@ -10,4 +10,9 @@
     <string name="cadastrar">Cadastrar</string>
     <string name="celular">Celular</string>
     <string name="e_mail">E-mail</string>
+    <string name="callguard">Callguard</string>
+    <string name="comunidade">Comunidade</string>
+    <string name="hist_rico">Histórico</string>
+    <string name="bloquear">Bloquear</string>
+    <string name="configura_es">Configurações</string>
 </resources>
