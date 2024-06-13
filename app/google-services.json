@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "841984776873",
+    "project_id": "callguard-960a6",
+    "storage_bucket": "callguard-960a6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:841984776873:android:cba3ad819b9ed04d4267b8",
+        "android_client_info": {
+          "package_name": "com.ufes.callguard"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC91BO8OFsCCHAXAzLJ6xQAvoIF9B6N6j0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
