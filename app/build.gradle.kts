@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.ufes.callguard"
-        minSdk = 21
+        minSdk = 23
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -34,6 +34,9 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+    viewBinding{
+        enable=true
+    }
 }
 
 dependencies {
@@ -48,4 +51,5 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(platform("com.google.firebase:firebase-bom:33.1.0"))
     implementation("com.google.firebase:firebase-auth-ktx:23.0.0")
+    implementation("com.google.firebase:firebase-firestore-ktx")
 }
