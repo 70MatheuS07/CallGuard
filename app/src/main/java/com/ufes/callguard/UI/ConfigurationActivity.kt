@@ -1,21 +1,27 @@
 package com.ufes.callguard.UI
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.firebase.auth.FirebaseAuth
 import com.ufes.callguard.R
+import com.ufes.callguard.databinding.ActivityConfigurationBinding
 
 class ConfigurationActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityConfigurationBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContentView(R.layout.activity_configuration)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
+        binding = ActivityConfigurationBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        //Deslogar usuário
+        binding.ButtonLogout.setOnClickListener {
+            FirebaseAuth.getInstance().signOut()
+            startActivity(Intent(this, LoginActivity::class.java))
+            finish()
         }
+
     }
 }

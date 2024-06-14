@@ -15,4 +15,7 @@
     <string name="hist_rico">Histórico</string>
     <string name="bloquear">Bloquear</string>
     <string name="configura_es">Configurações</string>
+    <string name="logout">LOGOUT</string>
+    <string name="n_meros_reportados_mais_de_100_vezes_s_o_bloqueados_automaticamente">Números reportados mais de 100 vezes são bloqueados automaticamente</string>
+    <string name="bloquear_n_mero_automaticamente">Bloquear número automaticamente</string>
 </resources>
