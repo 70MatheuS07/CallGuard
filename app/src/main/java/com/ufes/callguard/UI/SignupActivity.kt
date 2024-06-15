@@ -13,6 +13,9 @@ import com.ufes.callguard.databinding.ActivityLoginBinding
 import com.ufes.callguard.databinding.ActivitySignupBinding
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthUserCollisionException
+import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.firestore.FirebaseFirestore
 
 class SignupActivity : AppCompatActivity() {
@@ -55,8 +58,28 @@ class SignupActivity : AppCompatActivity() {
                     binding.editEmail.setText("")
                     binding.editPass.setText("")
 
+                } else {
+                    // Verifica o tipo de exceção lançada e define a mensagem de erro correspondente
+                    var erro: String = ""
+                    try {
+                        throw cadastro.exception!!
+                    } catch (e: FirebaseAuthWeakPasswordException) {
+                        erro = "A senha deve conter no mínimo 6 caracteres"
+                    } catch (e: FirebaseAuthUserCollisionException) {
+                        erro = "E-mail já foi cadastrado"
+                    } catch (e: FirebaseAuthInvalidCredentialsException) {
+                        erro = "E-mail inválido"
+                    } catch (e: Exception) {
+                        erro = "Erro ao cadastrar usuário"
+                    }
+
+
+                    val snackbar = Snackbar.make(view, erro, Snackbar.LENGTH_LONG)
+                    snackbar.setBackgroundTint(Color.RED)
+                    snackbar.setTextColor(Color.BLACK)
+                    snackbar.show()
+
                 }
-            }.addOnFailureListener {
 
             }
     }
