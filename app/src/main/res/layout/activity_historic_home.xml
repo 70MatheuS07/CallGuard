@@ -26,7 +26,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/callguard"
+            android:text="CallGuard"
             android:textSize="30sp" />
 
     </LinearLayout>
@@ -49,7 +49,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:text="@string/no_calls"
+            android:text="Nenhuma chamada"
             android:textSize="18sp"
             android:visibility="gone"
             android:textColor="#555555"/>

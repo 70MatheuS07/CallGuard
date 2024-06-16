@@ -7,25 +7,24 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.ufes.callguard.R
 
-class ContactAdapter(private val contactsList: List<Pair<String, String>>) : RecyclerView.Adapter<ContactAdapter.ViewHolder>() {
+class ContactAdapter(private val contactList: List<Pair<String, String>>) :
+    RecyclerView.Adapter<ContactAdapter.ContactViewHolder>() {
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val nameTextView: TextView = itemView.findViewById(R.id.nameTextView)
-        val phoneTextView: TextView = itemView.findViewById(R.id.phoneTextView)
+    class ContactViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val contactName: TextView = itemView.findViewById(R.id.contactName)
+        val contactNumber: TextView = itemView.findViewById(R.id.contactNumber)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContactViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.contact_list, parent, false)
-        return ViewHolder(view)
+        return ContactViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val contact = contactsList[position]
-        holder.nameTextView.text = contact.first
-        holder.phoneTextView.text = contact.second
+    override fun onBindViewHolder(holder: ContactViewHolder, position: Int) {
+        val contact = contactList[position]
+        holder.contactName.text = contact.first
+        holder.contactNumber.text = contact.second
     }
 
-    override fun getItemCount(): Int {
-        return contactsList.size
-    }
+    override fun getItemCount() = contactList.size
 }
