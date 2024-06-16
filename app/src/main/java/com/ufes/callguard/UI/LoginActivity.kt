@@ -37,6 +37,7 @@ class LoginActivity : AppCompatActivity() {
         }
 
         binding.textSenha.setOnClickListener {
+           startActivity(Intent(this, ForgotPasswordActivity::class.java))
 
         }
 

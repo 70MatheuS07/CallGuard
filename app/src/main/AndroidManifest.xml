@@ -18,6 +18,9 @@
         <activity
             android:name=".Util.ContactAdapter"
             android:exported="false" />
+      <activity
+            android:name=".UI.ForgotPasswordActivity"
+            android:exported="false" />
         <activity
             android:name=".UI.CommunityActivity"
             android:exported="false" />
