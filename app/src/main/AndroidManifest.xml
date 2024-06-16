@@ -13,6 +13,9 @@
         android:theme="@style/Theme.CallGuard"
         tools:targetApi="31">
         <activity
+            android:name=".UI.ForgotPasswordActivity"
+            android:exported="false" />
+        <activity
             android:name=".UI.CommunityActivity"
             android:exported="false" />
         <activity
