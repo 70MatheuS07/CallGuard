@@ -19,4 +19,6 @@
     <string name="n_meros_reportados_mais_de_100_vezes_s_o_bloqueados_automaticamente">Números reportados mais de 100 vezes são bloqueados automaticamente</string>
     <string name="bloquear_n_mero_automaticamente">Bloquear número automaticamente</string>
     <string name="no_calls">Não tem nenhuma chamada no histórico</string>
+    <string name="chamar">Chamar</string>
+    <string name="reportar">Reportar</string>
 </resources>

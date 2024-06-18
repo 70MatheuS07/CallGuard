@@ -5,10 +5,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.ufes.callguard.Class.Contact
 import com.ufes.callguard.R
 
-class ContactAdapter(private val contactList: List<Pair<String, String>>) :
-    RecyclerView.Adapter<ContactAdapter.ContactViewHolder>() {
+class ContactAdapter(
+    private val contactList: List<Contact>,
+    private val onItemClick: (Contact) -> Unit
+) : RecyclerView.Adapter<ContactAdapter.ContactViewHolder>() {
 
     class ContactViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val contactName: TextView = itemView.findViewById(R.id.contactName)
@@ -22,8 +25,11 @@ class ContactAdapter(private val contactList: List<Pair<String, String>>) :
 
     override fun onBindViewHolder(holder: ContactViewHolder, position: Int) {
         val contact = contactList[position]
-        holder.contactName.text = contact.first
-        holder.contactNumber.text = contact.second
+        holder.contactName.text = contact.getName()
+        holder.contactNumber.text = contact.getNumber()
+        holder.itemView.setOnClickListener {
+            onItemClick(contact)
+        }
     }
 
     override fun getItemCount() = contactList.size
