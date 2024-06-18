@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/soft_grey"
+
+    android:orientation="vertical"
+    tools:context=".UI.HistoricDetailsActivity">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/image_logo"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/callguardlogo" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="CallGuard"
+            android:textSize="30sp" />
+
+    </LinearLayout>
+
+    <ImageView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="50dp"
+        android:src="@drawable/baseline_person_24" />
+
+    <TextView
+        android:id="@+id/text_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textSize="20sp"
+        android:layout_marginTop="20dp" />
+
+    <TextView
+        android:id="@+id/text_number"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textSize="20sp"
+        android:layout_marginTop="20dp" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/Button_call"
+            android:layout_width="109dp"
+            android:layout_height="70dp"
+            android:layout_margin="10dp"
+            android:backgroundTint="@color/white"
+            android:drawableTop="@drawable/baseline_local_phone_24"
+            android:text="@string/chamar"
+            android:textColor="@color/black" />
+
+        <Button
+            android:id="@+id/Button_block"
+            android:layout_width="109dp"
+            android:layout_height="70dp"
+            android:layout_margin="10dp"
+            android:layout_toRightOf="@id/Button_call"
+            android:backgroundTint="@color/white"
+            android:drawableTop="@drawable/baseline_block_24"
+            android:text="@string/bloquear"
+            android:textColor="@color/black" />
+
+        <Button
+            android:id="@+id/Button_report"
+            android:layout_width="109dp"
+            android:layout_height="70dp"
+            android:layout_margin="10dp"
+            android:layout_toRightOf="@id/Button_block"
+            android:backgroundTint="@color/white"
+            android:drawableTop="@drawable/baseline_history_24"
+            android:text="@string/reportar"
+            android:textColor="@color/black" />
+    </RelativeLayout>
+
+</LinearLayout>
+
