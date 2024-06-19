@@ -7,7 +7,13 @@ class UserModel() : Parcelable {
     private var id = ""
     private var name = ""
     private var phone = ""
-    private var blockList: MutableList<String> = mutableListOf()
+    private var blockList: MutableList<Contact> = mutableListOf()
+
+    constructor(parcel: Parcel) : this() {
+        id = parcel.readString().toString()
+        name = parcel.readString().toString()
+        phone = parcel.readString().toString()
+    }
 
     fun getId(): String {
         return id
@@ -33,20 +39,14 @@ class UserModel() : Parcelable {
         this.phone = phone
     }
 
-    fun getBlockList(): MutableList<String> {
+    fun getBlockList(): MutableList<Contact> {
         return blockList
     }
 
-    fun setBlockList(blockList: MutableList<String>) {
+    fun setBlockList(blockList: MutableList<Contact>) {
         this.blockList = blockList
     }
 
-    constructor(parcel: Parcel) : this() {
-        id = parcel.readString().toString()
-        name = parcel.readString().toString()
-        phone = parcel.readString().toString()
-        blockList = parcel.createStringArrayList()?.toMutableList() ?: mutableListOf()
-    }
 
     constructor(id: String, name: String, phone: String) : this() {
         this.id = id
@@ -58,7 +58,6 @@ class UserModel() : Parcelable {
         parcel.writeString(id)
         parcel.writeString(name)
         parcel.writeString(phone)
-        parcel.writeStringList(blockList)
     }
 
     override fun describeContents(): Int {
@@ -74,4 +73,5 @@ class UserModel() : Parcelable {
             return arrayOfNulls(size)
         }
     }
+
 }
