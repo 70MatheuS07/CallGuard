@@ -3,11 +3,13 @@ package com.ufes.callguard.UI
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.provider.CallLog
 import android.provider.ContactsContract
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -20,6 +22,7 @@ import com.ufes.callguard.Util.ContactAdapter
 class HistoricHomeActivity : AppCompatActivity() {
     private val REQUEST_CONTACTS_AND_CALL_LOG_PERMISSION = 1
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_historic_home)
@@ -27,14 +30,25 @@ class HistoricHomeActivity : AppCompatActivity() {
         checkPermissions()
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun checkPermissions() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS)
             != PackageManager.PERMISSION_GRANTED ||
             ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CALL_LOG)
+            != PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)
+            != PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(this, Manifest.permission.ANSWER_PHONE_CALLS)
             != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
-                arrayOf(Manifest.permission.READ_CONTACTS, Manifest.permission.READ_CALL_LOG),
-                REQUEST_CONTACTS_AND_CALL_LOG_PERMISSION)
+                arrayOf(
+                    Manifest.permission.READ_CONTACTS,
+                    Manifest.permission.READ_CALL_LOG,
+                    Manifest.permission.READ_PHONE_STATE,
+                    Manifest.permission.ANSWER_PHONE_CALLS
+                ),
+                REQUEST_CONTACTS_AND_CALL_LOG_PERMISSION
+            )
         } else {
             getContactsAndCalls()
         }

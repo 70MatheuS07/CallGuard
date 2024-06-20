@@ -33,20 +33,20 @@ class SignupActivity : AppCompatActivity() {
                 snackbar.setBackgroundTint(Color.RED)
                 snackbar.show()
             } else {
-                CadastraUser(email, pass, view);
+                CadastraUser(email, pass, view, user, number)
             }
-            val usuario =
-                UserModel(FirebaseAuth.getInstance().currentUser?.uid.toString(), user, number)
-            SalvarDadosUser(usuario)
+
             finish()
         }
     }
 
 
-    private fun CadastraUser(email: String, pass: String, view: View) {
+    private fun CadastraUser(email: String, pass: String, view: View, user:String, number:String) {
         FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, pass)
             .addOnCompleteListener { cadastro ->
                 if (cadastro.isSuccessful) {
+                    val usuario= UserModel(FirebaseAuth.getInstance().currentUser?.uid.toString(),user,number)
+                    SalvarDadosUser(usuario)
                     val snackbar =
                         Snackbar.make(view, "Sucesso ao cadastrar usuário", Snackbar.LENGTH_SHORT)
                     snackbar.setBackgroundTint(Color.BLUE)
