@@ -4,12 +4,8 @@ import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import com.ufes.callguard.Model.UserModel
-import com.ufes.callguard.databinding.ActivityLoginBinding
+import com.ufes.callguard.Class.UserModel
 import com.ufes.callguard.databinding.ActivitySignupBinding
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
@@ -37,20 +33,20 @@ class SignupActivity : AppCompatActivity() {
                 snackbar.setBackgroundTint(Color.RED)
                 snackbar.show()
             } else {
-                CadastraUser(email, pass, view);
+                CadastraUser(email, pass, view, user, number)
             }
-            val usuario =
-                UserModel(FirebaseAuth.getInstance().currentUser?.uid.toString(), user, number)
-            SalvarDadosUser(usuario, view)
+
             finish()
         }
     }
 
 
-    private fun CadastraUser(email: String, pass: String, view: View) {
+    private fun CadastraUser(email: String, pass: String, view: View, user:String, number:String) {
         FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, pass)
             .addOnCompleteListener { cadastro ->
                 if (cadastro.isSuccessful) {
+                    val usuario= UserModel(FirebaseAuth.getInstance().currentUser?.uid.toString(),user,number)
+                    SalvarDadosUser(usuario)
                     val snackbar =
                         Snackbar.make(view, "Sucesso ao cadastrar usuário", Snackbar.LENGTH_SHORT)
                     snackbar.setBackgroundTint(Color.BLUE)
@@ -84,11 +80,11 @@ class SignupActivity : AppCompatActivity() {
             }
     }
 
-    private fun SalvarDadosUser(usuario: UserModel, view: View) {
+    private fun SalvarDadosUser(usuario: UserModel) {
 
         val database = FirebaseFirestore.getInstance()
         database.collection("usuario")
-            .document(usuario.id)
+            .document(usuario.getId())
             .set(usuario)
             .addOnSuccessListener {
                 Log.d("Teste", "Sucesso ao salvar os dados do usuário")
