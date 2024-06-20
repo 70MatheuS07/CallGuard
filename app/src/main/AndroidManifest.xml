@@ -29,6 +29,9 @@
             android:name=".UI.HistoricDetailsActivity"
             android:exported="false" />
         <activity
+            android:name=".UI.HistoricDetailsActivity"
+            android:exported="false" />
+        <activity
             android:name=".Util.ContactAdapter"
             android:exported="false" />
         <activity

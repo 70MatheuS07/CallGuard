@@ -7,6 +7,7 @@ class UserModel() : Parcelable {
     private var id = ""
     private var name = ""
     private var phone = ""
+
     private var blockList: MutableList<Contact> = mutableListOf()
 
     constructor(parcel: Parcel) : this() {
@@ -47,7 +48,6 @@ class UserModel() : Parcelable {
         this.blockList = blockList
     }
 
-
     constructor(id: String, name: String, phone: String) : this() {
         this.id = id
         this.name = name
@@ -73,5 +73,4 @@ class UserModel() : Parcelable {
             return arrayOfNulls(size)
         }
     }
-
 }

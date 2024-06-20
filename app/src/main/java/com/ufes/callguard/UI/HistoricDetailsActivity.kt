@@ -32,12 +32,14 @@ class HistoricDetailsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityHistoricDetailsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        
         var contact: Contact
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             contact = intent.getParcelableExtra<Contact>("contact", Contact::class.java)!!
         } else {
             contact = intent.getParcelableExtra<Contact>("contact")!!
         }
+
         binding.textName.setText(contact?.getName())
         binding.textNumber.setText(contact?.getNumber())
 
@@ -55,7 +57,6 @@ class HistoricDetailsActivity : AppCompatActivity() {
             }
         }
     }
-
 
     /**
      * Função que adiciona o número bloqueado ao banco de dados do usuário
@@ -93,5 +94,3 @@ class HistoricDetailsActivity : AppCompatActivity() {
             }
     }
 }
-
-

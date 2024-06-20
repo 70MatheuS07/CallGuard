@@ -35,6 +35,7 @@ class SignupActivity : AppCompatActivity() {
             } else {
                 CadastraUser(email, pass, view, user, number)
             }
+
             finish()
         }
     }
