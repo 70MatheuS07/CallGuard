@@ -5,9 +5,11 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.gms.tasks.Task
 import com.ufes.callguard.Class.UserModel
 import com.ufes.callguard.databinding.ActivitySignupBinding
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
@@ -40,45 +42,71 @@ class SignupActivity : AppCompatActivity() {
         }
     }
 
+    private fun CadastraUser(email: String, pass: String, view: View, user: String, number: String) {
+        val database = FirebaseFirestore.getInstance()
 
-    private fun CadastraUser(email: String, pass: String, view: View, user:String, number:String) {
-        FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, pass)
-            .addOnCompleteListener { cadastro ->
-                if (cadastro.isSuccessful) {
-                    val usuario= UserModel(FirebaseAuth.getInstance().currentUser?.uid.toString(),user,number)
-                    SalvarDadosUser(usuario)
-                    val snackbar =
-                        Snackbar.make(view, "Sucesso ao cadastrar usuário", Snackbar.LENGTH_SHORT)
-                    snackbar.setBackgroundTint(Color.BLUE)
-                    snackbar.show()
-                    binding.editEmail.setText("")
-                    binding.editPass.setText("")
-
+        database.collection("usuario")
+            .whereEqualTo("name", user)
+            .get()
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful && task.result.isEmpty) {
+                    // Verifica se o número é único
+                    database.collection("usuario")
+                        .whereEqualTo("phone", number)
+                        .get()
+                        .addOnCompleteListener { taskNumber ->
+                            if (taskNumber.isSuccessful && taskNumber.result.isEmpty) {
+                                // Se user e number são únicos, criar o usuário
+                                FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, pass)
+                                    .addOnCompleteListener { cadastro ->
+                                        if (cadastro.isSuccessful) {
+                                            val usuario = UserModel(FirebaseAuth.getInstance().currentUser?.uid.toString(), user, number)
+                                            SalvarDadosUser(usuario)
+                                            val snackbar = Snackbar.make(view, "Sucesso ao cadastrar usuário", Snackbar.LENGTH_SHORT)
+                                            snackbar.setBackgroundTint(Color.BLUE)
+                                            snackbar.show()
+                                            binding.editEmail.setText("")
+                                            binding.editPass.setText("")
+                                        } else {
+                                            handleAuthErrors(cadastro, view)
+                                        }
+                                    }
+                            } else {
+                                val snackbar = Snackbar.make(view, "Número já cadastrado", Snackbar.LENGTH_LONG)
+                                snackbar.setBackgroundTint(Color.RED)
+                                snackbar.setTextColor(Color.BLACK)
+                                snackbar.show()
+                            }
+                        }
                 } else {
-                    // Verifica o tipo de exceção lançada e define a mensagem de erro correspondente
-                    var erro: String = ""
-                    try {
-                        throw cadastro.exception!!
-                    } catch (e: FirebaseAuthWeakPasswordException) {
-                        erro = "A senha deve conter no mínimo 6 caracteres"
-                    } catch (e: FirebaseAuthUserCollisionException) {
-                        erro = "E-mail já foi cadastrado"
-                    } catch (e: FirebaseAuthInvalidCredentialsException) {
-                        erro = "E-mail inválido"
-                    } catch (e: Exception) {
-                        erro = "Erro ao cadastrar usuário"
-                    }
-
-
-                    val snackbar = Snackbar.make(view, erro, Snackbar.LENGTH_LONG)
+                    val snackbar = Snackbar.make(view, "Usuário já cadastrado", Snackbar.LENGTH_LONG)
                     snackbar.setBackgroundTint(Color.RED)
                     snackbar.setTextColor(Color.BLACK)
                     snackbar.show()
-
                 }
-
             }
     }
+
+    private fun handleAuthErrors(cadastro: Task<AuthResult>, view: View) {
+        var erro = ""
+        try {
+            throw cadastro.exception!!
+        } catch (e: FirebaseAuthWeakPasswordException) {
+            erro = "A senha deve conter no mínimo 6 caracteres"
+        } catch (e: FirebaseAuthUserCollisionException) {
+            erro = "E-mail já foi cadastrado"
+        } catch (e: FirebaseAuthInvalidCredentialsException) {
+            erro = "E-mail inválido"
+        } catch (e: Exception) {
+            erro = "Erro ao cadastrar usuário"
+        }
+
+        val snackbar = Snackbar.make(view, erro, Snackbar.LENGTH_LONG)
+        snackbar.setBackgroundTint(Color.RED)
+        snackbar.setTextColor(Color.BLACK)
+        snackbar.show()
+    }
+
 
     private fun SalvarDadosUser(usuario: UserModel) {
 

@@ -31,11 +31,14 @@
 
     </LinearLayout>
 
+
+
     <RelativeLayout
         android:layout_width="350dp"
         android:layout_height="600dp"
         android:layout_marginTop="35dp"
-        android:background="@drawable/rounded_background">
+        android:background="@drawable/rounded_background"
+        android:orientation="vertical">
 
         <TextView
             android:layout_margin="6dp"
@@ -43,6 +46,29 @@
             android:layout_height="wrap_content"
             android:text="Lista de Bloqueados:"
             android:textSize="20sp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/blockRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="33dp"
+            android:layout_marginBottom="100dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/block_list" />
+
+        <ImageView
+            android:id="@+id/add_blocked_number"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginTop="520dp"
+            android:layout_marginLeft="270dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="@drawable/circle_background_black"
+            android:src="@drawable/baseline_add_24"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
     </RelativeLayout>
 
 </LinearLayout>
