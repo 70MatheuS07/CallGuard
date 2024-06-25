@@ -16,7 +16,7 @@ import com.ufes.callguard.Class.BlockedContactModel
 import com.ufes.callguard.R
 import com.ufes.callguard.Util.BlockAdapter
 
-class BlockActivity : AppCompatActivity() {
+class BlockActivity : AppCompatActivity(), BlockAdapter.OnItemClickListener {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var blockAdapter: BlockAdapter
@@ -30,7 +30,7 @@ class BlockActivity : AppCompatActivity() {
 
         recyclerView = findViewById(R.id.blockRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        blockAdapter = BlockAdapter(blockList)
+        blockAdapter = BlockAdapter(blockList, this)
         recyclerView.adapter = blockAdapter
 
         firestore = FirebaseFirestore.getInstance()
@@ -118,5 +118,39 @@ class BlockActivity : AppCompatActivity() {
 
     private fun BlockedContactModel.toMap(): Map<String, String> {
         return mapOf("name" to name, "number" to number)
+    }
+
+    override fun onItemClick(contact: BlockedContactModel) {
+        showRemoveBlockedNumberDialog(contact)
+    }
+
+    private fun showRemoveBlockedNumberDialog(contact: BlockedContactModel) {
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("Remover número bloqueado")
+            .setMessage("Deseja remover ${contact.name} (${contact.number}) da lista de bloqueados?")
+            .setPositiveButton("Remover") { _, _ ->
+                removeBlockedNumber(contact)
+            }
+            .setNegativeButton("Cancelar", null)
+            .create()
+
+        dialog.show()
+    }
+
+    private fun removeBlockedNumber(contact: BlockedContactModel) {
+        val position = blockList.indexOf(contact)
+        if (position != -1) {
+            blockList.removeAt(position)
+            blockAdapter.notifyItemRemoved(position)
+
+            val userId = auth.currentUser?.uid ?: return
+            firestore.collection("usuario").document(userId).update("blockList", blockList.map { it.toMap() })
+                .addOnSuccessListener {
+                    Toast.makeText(this, "Número bloqueado removido", Toast.LENGTH_SHORT).show()
+                }
+                .addOnFailureListener {
+                    Toast.makeText(this, "Erro ao remover número bloqueado", Toast.LENGTH_SHORT).show()
+                }
+        }
     }
 }
