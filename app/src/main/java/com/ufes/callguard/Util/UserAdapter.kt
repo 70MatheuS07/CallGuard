@@ -8,11 +8,23 @@ import androidx.recyclerview.widget.RecyclerView
 import com.ufes.callguard.Class.UserModel
 import com.ufes.callguard.R
 
-class UserAdapter(private val userList: List<UserModel>) : RecyclerView.Adapter<UserAdapter.UserViewHolder>() {
+class UserAdapter(
+    private val userList: List<UserModel>,
+    private val onItemClick: (UserModel) -> Unit
+) : RecyclerView.Adapter<UserAdapter.UserViewHolder>() {
 
-    class UserViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class UserViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val userName: TextView = itemView.findViewById(R.id.textViewUserName)
         val userNumber: TextView = itemView.findViewById(R.id.textViewUserNumber)
+
+        init {
+            itemView.setOnClickListener {
+                val position = adapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    onItemClick(userList[position])
+                }
+            }
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserViewHolder {
