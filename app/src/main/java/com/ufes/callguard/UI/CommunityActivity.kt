@@ -2,6 +2,7 @@ package com.ufes.callguard.UI
 
 import android.os.Bundle
 import android.view.View
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -35,6 +36,7 @@ class CommunityActivity : AppCompatActivity() {
 
         currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
+        // Configurar o adapter e o RecyclerView
         userAdapter = UserAdapter(filteredUserList) { user ->
             showAddFriendDialog(user)
         }
@@ -43,6 +45,14 @@ class CommunityActivity : AppCompatActivity() {
         // Inicialmente ocultar o RecyclerView
         recyclerView.visibility = View.GONE
 
+        // Configurar o OnClickListener para o LinearLayout que envolve o SearchView
+        val searchContainer = findViewById<LinearLayout>(R.id.searchContainer)
+        searchContainer.setOnClickListener {
+            // Abrir o campo de texto para escrita no SearchView
+            searchView.isIconified = false
+        }
+
+        // Configurar o SearchView
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return false
@@ -54,6 +64,7 @@ class CommunityActivity : AppCompatActivity() {
             }
         })
 
+        // Funções para buscar usuários e o usuário atual
         fetchUsers()
         fetchCurrentUser()
     }
