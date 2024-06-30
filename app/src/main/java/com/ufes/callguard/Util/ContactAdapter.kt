@@ -31,6 +31,7 @@ class ContactAdapter(
 
     override fun onBindViewHolder(holder: ContactViewHolder, position: Int) {
         val contact = contactList[position]
+
         holder.contactName.text = contact.getName()
         holder.contactNumber.text = contact.getNumber()
 

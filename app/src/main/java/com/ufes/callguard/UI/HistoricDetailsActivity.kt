@@ -4,9 +4,12 @@ import android.app.AlertDialog
 import android.app.Dialog
 import android.content.ContentValues
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.BlockedNumberContract
+import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
 import android.widget.Button
@@ -18,10 +21,13 @@ import androidx.core.view.WindowInsetsCompat
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ufes.callguard.Class.Contact
+import com.ufes.callguard.Class.ContactReport
 import com.ufes.callguard.Class.UserModel
 import com.ufes.callguard.R
+import com.ufes.callguard.Util.ReportReasonCallback
 import com.ufes.callguard.Util.ShowDialogs.DialogUtils.showBlockDialog
 import com.ufes.callguard.Util.ShowDialogs.DialogUtils.showMessageDialog
+import com.ufes.callguard.Util.ShowDialogs.DialogUtils.showReportPopup
 import com.ufes.callguard.databinding.ActivityHistoricDetailsBinding
 
 class HistoricDetailsActivity : AppCompatActivity() {
@@ -32,7 +38,7 @@ class HistoricDetailsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityHistoricDetailsBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        
+
         var contact: Contact
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             contact = intent.getParcelableExtra<Contact>("contact", Contact::class.java)!!
@@ -40,11 +46,17 @@ class HistoricDetailsActivity : AppCompatActivity() {
             contact = intent.getParcelableExtra<Contact>("contact")!!
         }
 
-        binding.textName.setText(contact?.getName())
-        binding.textNumber.setText(contact?.getNumber())
+        val intent = Intent(
+            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+            Uri.parse("package:${packageName}")
+        )
+        startActivity(intent)
+
+        binding.textName.setText(contact?.getContactName())
+        binding.textNumber.setText(contact?.getContactNumber())
 
         binding.ButtonBlock.setOnClickListener {
-            contact?.getNumber()?.let { phoneNumber ->
+            contact?.getContactNumber()?.let { phoneNumber ->
                 showBlockDialog(this, phoneNumber) {
                     addContactToBlockList(
                         FirebaseAuth.getInstance().currentUser!!.uid,
@@ -52,9 +64,16 @@ class HistoricDetailsActivity : AppCompatActivity() {
                         this
                     )
 
-                    showMessageDialog(this, "Número bloqueado: $phoneNumber")
                 }
             }
+        }
+        binding.ButtonReport.setOnClickListener {
+            showReportPopup(contact, this, object : ReportReasonCallback {
+                override fun onReasonSelected(reasonIndex: Int) {
+                    val contactReport = ContactReport(contact.getContactName(), contact.getContactNumber(), mutableListOf(0, 0, 0, 0))
+                    addContactToReportedList(contactReport, this@HistoricDetailsActivity, reasonIndex)
+                }
+            })
         }
     }
 
@@ -78,7 +97,7 @@ class HistoricDetailsActivity : AppCompatActivity() {
                                 Log.d("Firestore", "Contact added to block list successfully")
                                 showMessageDialog(
                                     context,
-                                    "Número bloqueado: ${contact.getNumber()}"
+                                    "Número bloqueado: ${contact.getContactNumber()}"
                                 )
                             }
                             .addOnFailureListener { e ->
@@ -92,5 +111,41 @@ class HistoricDetailsActivity : AppCompatActivity() {
             .addOnFailureListener { e ->
                 Log.e("Firestore", "Error fetching user document", e)
             }
+    }
+
+    private fun addContactToReportedList(contact: ContactReport, context: Context, reasonIndex: Int) {
+        val db = FirebaseFirestore.getInstance()
+        val reportRef = db.collection("reports").document(contact.number)
+
+        reportRef.get().addOnSuccessListener { document ->
+            if (document.exists()) {
+                // Documento já existe, atualizar a lista de tipos
+                val existingReport = document.toObject(ContactReport::class.java)
+                existingReport?.type?.let {
+                    it[reasonIndex] = it[reasonIndex] + 1
+                    reportRef.set(existingReport.toHashMap())
+                        .addOnSuccessListener {
+                            Log.d("Firestore", "Report atualizado com sucesso")
+                        }
+                        .addOnFailureListener { e ->
+                            Log.w("Firestore", "Erro ao atualizar o report", e)
+                        }
+                }
+            } else {
+                // Documento não existe, criar um novo
+                val initialType = mutableListOf(0, 0, 0, 0)
+                initialType[reasonIndex] = 1
+                val newReport = ContactReport(contact.name, contact.number, initialType)
+                reportRef.set(newReport.toHashMap())
+                    .addOnSuccessListener {
+                        Log.d("Firestore", "Report adicionado com sucesso")
+                    }
+                    .addOnFailureListener { e ->
+                        Log.w("Firestore", "Erro ao adicionar o report", e)
+                    }
+            }
+        }.addOnFailureListener { e ->
+            Log.w("Firestore", "Erro ao obter o documento", e)
+        }
     }
 }

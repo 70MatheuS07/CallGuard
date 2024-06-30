@@ -3,58 +3,36 @@ package com.ufes.callguard.Class
 import android.os.Parcel
 import android.os.Parcelable
 
-
-class Contact() : Parcelable {
-    private var id: String = ""
-    private var name: String = ""
-    private var number: String = ""
-    private var type: Int = 0
+open class Contact() : Parcelable {
+    var name: String = ""
+    var number: String = ""
 
 
-
-    fun getId(): String = id
-    fun setId(value: String) {
-        id = value
-    }
-
-    fun getName(): String = name
-    fun setName(value: String) {
-        name = value
-    }
-
-    fun getNumber(): String = number
-    fun setNumber(value: String) {
-        number = value
-    }
-
-    fun getType(): Int = type
-    fun setType(value: Int) {
-        type = value
-    }
-
-    constructor(parcel: Parcel): this()
-    {
-        id = parcel.readString().toString()
-        name = parcel.readString().toString()
-        number = parcel.readString().toString()
-        type = parcel.readInt()
-    }
-
-    constructor(id: String, name: String, number: String) : this() {
-        this.id = id
+    constructor(name: String, number: String) : this() {
         this.name = name
         this.number = number
     }
 
-    constructor( type: Int) : this() {
-        this.type = type
+    constructor(parcel: Parcel) : this() {
+        name = parcel.readString().toString()
+        number = parcel.readString().toString()
     }
 
+    fun getContactName(): String = name
+    fun setContactName(value: String) {
+        name = value
+    }
+
+    fun getContactNumber(): String = number
+    fun setContactNumber(value: String) {
+        number = value
+    }
+
+
+
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeString(id)
         parcel.writeString(name)
         parcel.writeString(number)
-        parcel.writeInt(type)
     }
 
     override fun describeContents(): Int {
@@ -70,8 +48,6 @@ class Contact() : Parcelable {
             return arrayOfNulls(size)
         }
     }
-
 }
-
 
 

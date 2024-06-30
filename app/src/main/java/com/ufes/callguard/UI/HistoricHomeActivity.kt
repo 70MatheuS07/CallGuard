@@ -116,7 +116,7 @@ class HistoricHomeActivity : AppCompatActivity() {
             while (it.moveToNext()) {
                 val phoneNumber = it.getString(numberIndex)?.replace(Regex("[^0-9]"), "") ?: "Sem número"
                 val name = contactsMap[phoneNumber] ?: "Desconhecido"
-                callsList.add(Contact("", name, phoneNumber))
+                callsList.add(Contact(name, phoneNumber))
             }
         }
         return callsList

@@ -1,4 +1,10 @@
 <resources>
+    <string-array name="report_reasons">
+        <item>Venda/Promo</item>
+        <item>Golpe</item>
+        <item>Atendimento ao cliente</item>
+        <item>Outros</item>
+    </string-array>
     <string name="app_name">CallGuard</string>
     <string name="username">Username</string>
     <string name="senha">Senha</string>
@@ -21,4 +27,5 @@
     <string name="no_calls">Não tem nenhuma chamada no histórico</string>
     <string name="chamar">Chamar</string>
     <string name="reportar">Reportar</string>
+    <string name="motivo_do_report">Motivo do Report</string>
 </resources>

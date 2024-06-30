@@ -5,11 +5,14 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
+import android.provider.Settings
 import android.telephony.TelephonyManager
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.ufes.callguard.Util.ShowDialogs.DialogUtils.showReportPopup
 
 class CallReceiver : BroadcastReceiver() {
 
@@ -21,8 +24,36 @@ class CallReceiver : BroadcastReceiver() {
                 val incomingNumber = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER)
                 incomingNumber?.let {
                     checkAndBlockNumber(context, it)
+                    checkReports(context, incomingNumber)
                 }
             }
+        }
+    }
+
+    private fun checkReports(context: Context?, incomingNumber: String) {
+        val db = FirebaseFirestore.getInstance()
+        val reportRef = db.collection("reports").document(incomingNumber)
+
+        reportRef.get().addOnSuccessListener { document ->
+            if (document.exists()) {
+                val report = document.toObject(ContactReport::class.java)
+                report?.let {
+                    if (context != null) {
+                        if (Settings.canDrawOverlays(context)) {
+                            showReportPopup(context, report)
+                        } else {
+                            // Solicite a permissão de sobreposição
+                            val intent = Intent(
+                                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                                Uri.parse("package:${context.packageName}")
+                            )
+                            context.startActivity(intent)
+                        }
+                    }
+                }
+            }
+        }.addOnFailureListener { e ->
+            Log.e("CallReceiver", "Erro ao obter o documento", e)
         }
     }
 
