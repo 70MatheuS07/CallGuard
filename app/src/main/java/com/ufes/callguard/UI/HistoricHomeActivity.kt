@@ -86,11 +86,11 @@ class HistoricHomeActivity : AppCompatActivity() {
         )
 
         cursor?.use {
-            val nameIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
-            val numberIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
-            while (cursor.moveToNext()) {
-                val name = cursor.getString(nameIndex) ?: "Desconhecido"
-                val phoneNumber = cursor.getString(numberIndex)?.replace(Regex("[^0-9]"), "") ?: "Sem número"
+            val nameIndex = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
+            val numberIndex = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
+            while (it.moveToNext()) {
+                val name = it.getString(nameIndex) ?: "Desconhecido"
+                val phoneNumber = it.getString(numberIndex)?.replace(Regex("[^0-9]"), "") ?: "Sem número"
                 contactsMap[phoneNumber] = name
             }
         }
@@ -112,9 +112,9 @@ class HistoricHomeActivity : AppCompatActivity() {
         )
 
         cursor?.use {
-            val numberIndex = cursor.getColumnIndex(CallLog.Calls.NUMBER)
-            while (cursor.moveToNext()) {
-                val phoneNumber = cursor.getString(numberIndex)?.replace(Regex("[^0-9]"), "") ?: "Sem número"
+            val numberIndex = it.getColumnIndex(CallLog.Calls.NUMBER)
+            while (it.moveToNext()) {
+                val phoneNumber = it.getString(numberIndex)?.replace(Regex("[^0-9]"), "") ?: "Sem número"
                 val name = contactsMap[phoneNumber] ?: "Desconhecido"
                 callsList.add(Contact("", name, phoneNumber))
             }
@@ -133,7 +133,7 @@ class HistoricHomeActivity : AppCompatActivity() {
             noCallsTextView.visibility = TextView.GONE
             recyclerView.visibility = RecyclerView.VISIBLE
             recyclerView.layoutManager = LinearLayoutManager(this)
-            recyclerView.adapter = ContactAdapter(callsList) { contact ->
+            recyclerView.adapter = ContactAdapter(this, callsList) { contact ->
                 val intent = Intent(this, HistoricDetailsActivity::class.java).apply {
                     putExtra("contact", contact)
                 }
