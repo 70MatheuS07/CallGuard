@@ -4,9 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical"
-    tools:context=".UI.CommunityActivity">
+    tools:context=".UI.CommunityActivity"
+    android:background="@color/white">
 
     <TextView
         android:id="@+id/textViewUserName"
@@ -21,5 +22,10 @@
         android:layout_height="wrap_content"
         android:text="User Number"
         android:textSize="16sp" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#B0B0B0"
+        android:layout_marginVertical="8dp"/>
 
 </LinearLayout>

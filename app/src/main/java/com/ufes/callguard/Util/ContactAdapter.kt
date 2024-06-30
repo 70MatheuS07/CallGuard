@@ -32,10 +32,10 @@ class ContactAdapter(
     override fun onBindViewHolder(holder: ContactViewHolder, position: Int) {
         val contact = contactList[position]
 
-        holder.contactName.text = contact.getName()
-        holder.contactNumber.text = contact.getNumber()
+        holder.contactName.text = contact.getContactName()
+        holder.contactNumber.text = contact.getContactNumber()
 
-        if (isNumberInContacts(contact.getNumber())) {
+        if (isNumberInContacts(contact.getContactNumber())) {
             holder.contactImage.setImageResource(R.drawable.baseline_person_green_24)
         } else {
             holder.contactImage.setImageResource(R.drawable.baseline_person_24)

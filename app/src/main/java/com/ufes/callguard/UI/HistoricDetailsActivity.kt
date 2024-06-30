@@ -46,11 +46,13 @@ class HistoricDetailsActivity : AppCompatActivity() {
             contact = intent.getParcelableExtra<Contact>("contact")!!
         }
 
-        val intent = Intent(
-            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-            Uri.parse("package:${packageName}")
-        )
-        startActivity(intent)
+        if (!Settings.canDrawOverlays(this)) {
+            val intent = Intent(
+                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                Uri.parse("package:${packageName}")
+            )
+            startActivity(intent)
+        }
 
         binding.textName.setText(contact?.getContactName())
         binding.textNumber.setText(contact?.getContactNumber())
