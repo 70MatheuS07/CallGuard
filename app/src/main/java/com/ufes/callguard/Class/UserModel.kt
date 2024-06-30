@@ -9,7 +9,12 @@ class UserModel() : Parcelable {
     private var phone = ""
 
     private var blockList: MutableList<Contact> = mutableListOf()
+    private var amigoList: MutableList<Amigo> = mutableListOf()
 
+    fun getAmigoList(): MutableList<Amigo> = amigoList
+    fun addAmigo(amigo: Amigo) {
+        amigoList.add(amigo)
+    }
     constructor(parcel: Parcel) : this() {
         id = parcel.readString().toString()
         name = parcel.readString().toString()
