@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     id("com.google.gms.google-services")
+    id("org.jetbrains.dokka")
 }
 
 android {
@@ -57,4 +58,6 @@ dependencies {
     implementation("com.google.firebase:firebase-auth-ktx:23.0.0")
     implementation("com.google.firebase:firebase-firestore-ktx")
     testImplementation ("org.robolectric:robolectric:4.9")
+    dokkaPlugin("org.jetbrains.dokka:android-documentation-plugin:1.9.20")
 }
+

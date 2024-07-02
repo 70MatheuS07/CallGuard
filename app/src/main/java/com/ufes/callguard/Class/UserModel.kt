@@ -10,6 +10,7 @@ class UserModel() : Parcelable {
 
     private var blockList: MutableList<Contact> = mutableListOf()
     private var amigoList: MutableList<Amigo> = mutableListOf()
+    private var highReports: Boolean =false
 
     fun getAmigoList(): MutableList<Amigo> = amigoList
     fun addAmigo(amigo: Amigo) {
@@ -51,6 +52,13 @@ class UserModel() : Parcelable {
 
     fun setBlockList(blockList: MutableList<Contact>) {
         this.blockList = blockList
+    }
+
+    fun setHighReports(highReports: Boolean) {
+        this.highReports = highReports
+    }
+    fun getHighReports(): Boolean {
+        return highReports
     }
 
     constructor(id: String, name: String, phone: String) : this() {
