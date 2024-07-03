@@ -1,5 +1,6 @@
 package com.ufes.callguard.UI
 
+import FriendsAdapter
 import android.os.Bundle
 import android.view.View
 import android.widget.LinearLayout
@@ -14,7 +15,6 @@ import com.ufes.callguard.Class.UserModel
 import com.ufes.callguard.Class.Amigo
 import com.ufes.callguard.R
 import androidx.appcompat.widget.SearchView
-import com.ufes.callguard.Util.FriendsAdapter
 import com.ufes.callguard.Util.UserAdapter
 
 class CommunityActivity : AppCompatActivity() {
