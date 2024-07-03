@@ -42,7 +42,7 @@ class CommunityActivity : AppCompatActivity() {
 
         currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
-        // Configurar o adapter e o RecyclerView
+        //Configurar o adapter e o RecyclerView
         userAdapter = UserAdapter(filteredUserList) { user ->
             showAddFriendDialog(user)
         }
