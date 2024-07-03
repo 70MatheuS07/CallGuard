@@ -128,6 +128,7 @@ class HistoricDetailsActivity : AppCompatActivity() {
                     reportRef.set(existingReport.toHashMap())
                         .addOnSuccessListener {
                             Log.d("Firestore", "Report atualizado com sucesso")
+                            checkAndAddToHighReports(existingReport)
                         }
                         .addOnFailureListener { e ->
                             Log.w("Firestore", "Erro ao atualizar o report", e)
@@ -141,6 +142,7 @@ class HistoricDetailsActivity : AppCompatActivity() {
                 reportRef.set(newReport.toHashMap())
                     .addOnSuccessListener {
                         Log.d("Firestore", "Report adicionado com sucesso")
+                        checkAndAddToHighReports(newReport)
                     }
                     .addOnFailureListener { e ->
                         Log.w("Firestore", "Erro ao adicionar o report", e)
@@ -148,6 +150,23 @@ class HistoricDetailsActivity : AppCompatActivity() {
             }
         }.addOnFailureListener { e ->
             Log.w("Firestore", "Erro ao obter o documento", e)
+        }
+    }
+
+
+    private fun checkAndAddToHighReports(contact: ContactReport) {
+        val totalReports = contact.type.sum()
+        if (totalReports > 100) {
+            val db = FirebaseFirestore.getInstance()
+            val highReportRef = db.collection("high_reports").document(contact.number)
+
+            highReportRef.set(contact.toHashMap())
+                .addOnSuccessListener {
+                    Log.d("Firestore", "Report adicionado à coleção de high_reports com sucesso")
+                }
+                .addOnFailureListener { e ->
+                    Log.w("Firestore", "Erro ao adicionar o report à coleção de high_reports", e)
+                }
         }
     }
 }

@@ -12,6 +12,7 @@ import android.util.Log
 import androidx.core.app.ActivityCompat
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.ufes.callguard.Util.BlockNumberCallback
 import com.ufes.callguard.Util.ShowDialogs.DialogUtils.showReportPopup
 
 class CallReceiver : BroadcastReceiver() {
@@ -23,8 +24,16 @@ class CallReceiver : BroadcastReceiver() {
             if (state == TelephonyManager.EXTRA_STATE_RINGING) {
                 val incomingNumber = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER)
                 incomingNumber?.let {
-                    checkAndBlockNumber(context, it)
-                    checkReports(context, incomingNumber)
+                    checkAndBlockNumber(context, it, object : BlockNumberCallback {
+                        override fun onNumberBlocked() {
+                            // O número foi rejeitado, não precisamos checar os reports
+                        }
+
+                        override fun onNumberNotBlocked() {
+                            // O número não foi rejeitado, então precisamos checar os reports
+                            checkReports(context, incomingNumber)
+                        }
+                    })
                 }
             }
         }
@@ -58,29 +67,59 @@ class CallReceiver : BroadcastReceiver() {
     }
 
 
-    private fun checkAndBlockNumber(context: Context?, incomingNumber: String) {
+    private fun checkAndBlockNumber(context: Context?, incomingNumber: String, callback: BlockNumberCallback) {
         val db = FirebaseFirestore.getInstance()
         val userId = FirebaseAuth.getInstance().currentUser?.uid.toString()
 
         db.collection("usuario").document(userId)
             .get()
             .addOnSuccessListener { document ->
+                var blocked = false
+
                 if (document != null) {
+                    val user = document.toObject(UserModel::class.java)
                     val blockList = document.get("blockList") as? List<Map<String, Any>>
+
                     if (blockList != null) {
                         for (contact in blockList) {
                             val number = contact["number"] as? String
                             if (number != null && number == incomingNumber) {
                                 rejectCall(context)
+                                blocked = true
                                 Log.d("CallReceiver", "Blocked call from: $incomingNumber")
-                                break
+                                callback.onNumberBlocked()
+                                return@addOnSuccessListener
                             }
                         }
                     }
+
+                    if (user != null && user.getHighReports()) {
+                        db.collection("high_reports").document(incomingNumber)
+                            .get()
+                            .addOnSuccessListener { reportDoc ->
+                                if (reportDoc.exists()) {
+                                    rejectCall(context)
+                                    blocked = true
+                                    Log.d("CallReceiver", "Blocked call from reports: $incomingNumber")
+                                    callback.onNumberBlocked()
+                                } else {
+                                    callback.onNumberNotBlocked()
+                                }
+                            }
+                            .addOnFailureListener { e ->
+                                Log.e("CallReceiver", "Error checking reports", e)
+                                callback.onNumberNotBlocked()
+                            }
+                    } else if (!blocked) {
+                        callback.onNumberNotBlocked()
+                    }
+                } else {
+                    callback.onNumberNotBlocked()
                 }
             }
             .addOnFailureListener { e ->
                 Log.e("CallReceiver", "Error checking blocked numbers", e)
+                callback.onNumberNotBlocked()
             }
     }
 
