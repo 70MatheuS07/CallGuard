@@ -14,6 +14,7 @@ import com.ufes.callguard.Class.UserModel
 import com.ufes.callguard.Class.Amigo
 import com.ufes.callguard.R
 import androidx.appcompat.widget.SearchView
+import com.ufes.callguard.Util.FriendsAdapter
 import com.ufes.callguard.Util.UserAdapter
 
 class CommunityActivity : AppCompatActivity() {
@@ -25,6 +26,11 @@ class CommunityActivity : AppCompatActivity() {
     private val filteredUserList = mutableListOf<UserModel>()
     private lateinit var currentUserId: String
     private lateinit var currentUser: UserModel
+
+    private lateinit var recyclerViewFriends: RecyclerView
+    private lateinit var friendsAdapter: FriendsAdapter
+    private val friendsList = mutableListOf<Amigo>()
+    private val friendsUsernames = mutableSetOf<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,8 +70,16 @@ class CommunityActivity : AppCompatActivity() {
             }
         })
 
+        recyclerViewFriends = findViewById(R.id.recyclerViewFriends)
+        recyclerViewFriends.layoutManager = LinearLayoutManager(this)
+
+        currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+
+        // Configurar o adapter e o RecyclerView para amigos
+        friendsAdapter = FriendsAdapter(this, friendsList, currentUserId)
+        recyclerViewFriends.adapter = friendsAdapter
+
         // Funções para buscar usuários e o usuário atual
-        fetchUsers()
         fetchCurrentUser()
     }
 
@@ -78,7 +92,7 @@ class CommunityActivity : AppCompatActivity() {
                 filteredUserList.clear()
                 for (document in result) {
                     val user = document.toObject(UserModel::class.java)
-                    if (user.getId() != currentUserId) {
+                    if (user.getId() != currentUserId && !friendsUsernames.contains(user.getName())) {
                         userList.add(user)
                         filteredUserList.add(user)
                     }
@@ -96,6 +110,7 @@ class CommunityActivity : AppCompatActivity() {
             .get()
             .addOnSuccessListener { document ->
                 currentUser = document.toObject(UserModel::class.java) ?: UserModel()
+                fetchFriends()
             }
             .addOnFailureListener { exception ->
                 // Handle errors
@@ -144,9 +159,40 @@ class CommunityActivity : AppCompatActivity() {
             .set(currentUser)
             .addOnSuccessListener {
                 Toast.makeText(this, "${user.getName()} added to your friends list", Toast.LENGTH_SHORT).show()
+                fetchFriends()
             }
             .addOnFailureListener { exception ->
                 Toast.makeText(this, "Failed to add friend", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun fetchFriends() {
+        val database = FirebaseFirestore.getInstance()
+        database.collection("usuario").document(currentUserId)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document != null && document.exists()) {
+                    val friendListData = document.get("amigoList") as List<Map<String, Any>>?
+                    if (friendListData != null) {
+                        friendsList.clear()
+                        friendsUsernames.clear()
+                        for (friendData in friendListData) {
+                            val userName = friendData["userName"] as String? ?: "Unknown"
+                            val isSelected = friendData["isSelected"] as Boolean? ?: false
+                            friendsList.add(Amigo(userName, isSelected))
+                            friendsUsernames.add(userName)
+                        }
+                        friendsAdapter.notifyDataSetChanged()
+                        fetchUsers()
+                    } else {
+                        Toast.makeText(this, "Nenhum amigo encontrado", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Toast.makeText(this, "Documento não encontrado", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .addOnFailureListener { exception ->
+                Toast.makeText(this, "Erro ao carregar a lista de amigos", Toast.LENGTH_SHORT).show()
             }
     }
 }

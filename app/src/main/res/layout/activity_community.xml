@@ -9,6 +9,7 @@
     tools:context=".UI.CommunityActivity"
     android:background="@color/soft_grey">
 
+
     <LinearLayout
         android:id="@+id/searchContainer"
         android:layout_width="match_parent"
@@ -25,11 +26,37 @@
             android:iconifiedByDefault="false" />
     </LinearLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerViewUsers"
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewUsers"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp"
+            android:paddingLeft="10dp"
+            android:background="@drawable/rounded_background"/>
+
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/textViewFriends"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="Friends List"
+        android:textSize="18sp"
+        android:paddingTop="16dp" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewFriends"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:listitem="@layout/friend_list"
         android:paddingTop="10dp"
         android:paddingLeft="10dp"
         android:background="@drawable/rounded_background"/>
+
+
 </LinearLayout>
