@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ufes.callguard.Class.UserModel
-import com.ufes.callguard.Class.Amigo
+import com.ufes.callguard.Class.Friend
 import com.ufes.callguard.R
 import androidx.appcompat.widget.SearchView
 import com.ufes.callguard.Util.UserAdapter
@@ -136,7 +136,7 @@ class CommunityActivity : AppCompatActivity() {
     }
 
     private fun addFriend(user: UserModel) {
-        val newFriend = Amigo(user.getName(), false)
+        val newFriend = Friend(user.getName(), false)
         currentUser.addAmigo(newFriend)
 
         val database = FirebaseFirestore.getInstance()

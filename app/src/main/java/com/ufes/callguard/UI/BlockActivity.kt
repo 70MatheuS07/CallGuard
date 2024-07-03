@@ -16,6 +16,9 @@ import com.ufes.callguard.Class.BlockedContactModel
 import com.ufes.callguard.R
 import com.ufes.callguard.Util.BlockAdapter
 
+/**
+ * Activity responsável pela tela dos números bloqueados
+ */
 class BlockActivity : AppCompatActivity(), BlockAdapter.OnItemClickListener {
 
     private lateinit var recyclerView: RecyclerView
@@ -49,19 +52,26 @@ class BlockActivity : AppCompatActivity(), BlockAdapter.OnItemClickListener {
         }
     }
 
+    /**
+     * Busca os números bloqueados de um usuário no Firestore
+     * @param userId ID do usuário
+     */
     private fun fetchBlockedNumbers(userId: String) {
+        //Obtém lista de bloqueio
         firestore.collection("usuario").document(userId)
             .get()
             .addOnSuccessListener { document ->
                 if (document != null && document.exists()) {
                     val blockListData = document.get("blockList") as List<Map<String, String>>?
                     if (blockListData != null) {
+                        //Limpa a lista atual e preenche com novos dados
                         blockList.clear()
                         for (block in blockListData) {
                             val name = block["name"] ?: "Desconhecido"
                             val number = block["number"] ?: "Sem número"
                             blockList.add(BlockedContactModel(name, number))
                         }
+                        // Notifica o adapter da mudança para que UI mude
                         blockAdapter.notifyDataSetChanged()
                     } else {
                         Toast.makeText(this, "Nenhum número bloqueado encontrado", Toast.LENGTH_SHORT).show()
@@ -75,6 +85,9 @@ class BlockActivity : AppCompatActivity(), BlockAdapter.OnItemClickListener {
             }
     }
 
+    /**
+     * Exibe um pop-up para adicionar um novo número bloqueado
+     */
     private fun showAddBlockedNumberDialog() {
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_add_blocked_number, null)
         val etBlockedNumber = dialogView.findViewById<EditText>(R.id.etBlockedNumber)
@@ -102,6 +115,10 @@ class BlockActivity : AppCompatActivity(), BlockAdapter.OnItemClickListener {
         dialog.show()
     }
 
+    /**
+     * Adiciona um novo número bloqueado ao Firestore
+     * @param contact Objeto BlockedContactModel contendo os dados do número bloqueado
+     */
     private fun addBlockedNumber(contact: BlockedContactModel) {
         blockList.add(contact)
         blockAdapter.notifyItemInserted(blockList.size - 1)
@@ -116,13 +133,26 @@ class BlockActivity : AppCompatActivity(), BlockAdapter.OnItemClickListener {
             }
     }
 
+    /**
+     * Transforma o objeto BlockedContactModel em um mapa  para o Firestore
+     * @return Mapa contendo os dados do número bloqueado
+     */
     private fun BlockedContactModel.toMap(): Map<String, String> {
         return mapOf("name" to name, "number" to number)
     }
 
+    /**
+     * Implementação do método onItemClick que chama o dialog para remover o número bloqueado
+     * @param contact Objeto BlockedContactModel contendo os dados do número bloqueado
+     */
     override fun onItemClick(contact: BlockedContactModel) {
         showRemoveBlockedNumberDialog(contact)
     }
+
+    /**
+     * Exibe um pop-up para remover um número bloqueado
+     * @param contact Objeto BlockedContactModel contendo os dados do número bloqueado
+     */
 
     private fun showRemoveBlockedNumberDialog(contact: BlockedContactModel) {
         val dialog = AlertDialog.Builder(this)
@@ -137,6 +167,10 @@ class BlockActivity : AppCompatActivity(), BlockAdapter.OnItemClickListener {
         dialog.show()
     }
 
+    /**
+     * Remove um número bloqueado do Firestore
+     * @param contact Objeto BlockedContactModel contendo os dados do número bloqueado
+     */
     private fun removeBlockedNumber(contact: BlockedContactModel) {
         val position = blockList.indexOf(contact)
         if (position != -1) {
