@@ -8,13 +8,13 @@ import android.widget.Switch
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.firestore.FirebaseFirestore
-import com.ufes.callguard.Class.Amigo
+import com.ufes.callguard.Class.Friend
 import com.ufes.callguard.Class.UserModel
 import com.ufes.callguard.R
 
 class FriendsAdapter(
     private val context: Context,
-    private val friendsList: List<Amigo>,
+    private val friendsList: List<Friend>,
     private val currentUserId: String
 ) : RecyclerView.Adapter<FriendsAdapter.FriendViewHolder>() {
 
@@ -42,7 +42,7 @@ class FriendsAdapter(
         return friendsList.size
     }
 
-    private fun updateFriendSelectionInDatabase(friend: Amigo) {
+    private fun updateFriendSelectionInDatabase(friend: Friend) {
         // Encontre o documento do usuário atual no Firestore
         val userDocumentRef = firestore.collection("usuario").document(currentUserId)
 

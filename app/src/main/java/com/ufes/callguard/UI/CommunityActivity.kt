@@ -29,7 +29,7 @@ class CommunityActivity : AppCompatActivity() {
 
     private lateinit var recyclerViewFriends: RecyclerView
     private lateinit var friendsAdapter: FriendsAdapter
-    private val friendsList = mutableListOf<Amigo>()
+    private val friendsList = mutableListOf<Friend>()
     private val friendsUsernames = mutableSetOf<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -179,7 +179,7 @@ class CommunityActivity : AppCompatActivity() {
                         for (friendData in friendListData) {
                             val userName = friendData["userName"] as String? ?: "Unknown"
                             val isSelected = friendData["isSelected"] as Boolean? ?: false
-                            friendsList.add(Amigo(userName, isSelected))
+                            friendsList.add(Friend(userName, isSelected))
                             friendsUsernames.add(userName)
                         }
                         friendsAdapter.notifyDataSetChanged()
