@@ -16,6 +16,9 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.firestore.FirebaseFirestore
 
+/**
+ * Activity que representa a tela de cadastro do usuário.
+ */
 class SignupActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySignupBinding
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,6 +45,14 @@ class SignupActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Responsável por cadastrar o usuário no Firebase.
+     * @param email E-mail do usuário.
+     * @param pass Senha do usuário.
+     * @param view View da activity.
+     * @param user Nome do usuário.
+     * @param number Número do usuário.
+     */
     private fun CadastraUser(email: String, pass: String, view: View, user: String, number: String) {
         val database = FirebaseFirestore.getInstance()
 
@@ -87,6 +98,11 @@ class SignupActivity : AppCompatActivity() {
             }
     }
 
+    /**
+     * Responsável por lidar com os erros de autenticação do Firebase.
+     * @param cadastro Resultado da autenticação.
+     * @param view View da activity.
+     */
     private fun handleAuthErrors(cadastro: Task<AuthResult>, view: View) {
         var erro = ""
         try {
@@ -107,7 +123,10 @@ class SignupActivity : AppCompatActivity() {
         snackbar.show()
     }
 
-
+    /**
+     * Responsável por criar a coleção usuário,caso ela não exista, no Firebase e salvar os dados do usuário.
+     * @param usuario usuário a ser salvo no Firebase.
+     */
     private fun SalvarDadosUser(usuario: UserModel) {
 
         val database = FirebaseFirestore.getInstance()

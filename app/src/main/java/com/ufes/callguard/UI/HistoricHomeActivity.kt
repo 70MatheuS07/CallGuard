@@ -19,6 +19,9 @@ import com.ufes.callguard.Class.Contact
 import com.ufes.callguard.R
 import com.ufes.callguard.Util.ContactAdapter
 
+/**
+ * Activity responsável por exibir o histórico de chamadas.
+ */
 class HistoricHomeActivity : AppCompatActivity() {
     private val REQUEST_CONTACTS_AND_CALL_LOG_PERMISSION = 1
 
@@ -30,6 +33,9 @@ class HistoricHomeActivity : AppCompatActivity() {
         checkPermissions()
     }
 
+    /**
+     * Verifica as permissões necessárias para acessar os contatos e o histórico de chamadas.
+     */
     @RequiresApi(Build.VERSION_CODES.O)
     private fun checkPermissions() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS)
@@ -54,8 +60,16 @@ class HistoricHomeActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Trata o resultado das solicitações de permissões.
+     *
+     * @param requestCode O código de solicitação associado à solicitação de permissões.
+     * @param permissions Um array de permissões solicitadas.
+     * @param grantResults Um array de resultados de concessão para as permissões correspondentes.
+     */
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        // Verifica se o requestCode corresponde ao código de solicitação de permissões para contatos e histórico de chamadas
         if (requestCode == REQUEST_CONTACTS_AND_CALL_LOG_PERMISSION) {
             if (grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
                 getContactsAndCalls()
@@ -65,12 +79,21 @@ class HistoricHomeActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Obtém os contatos e os históricos de chamadas do dispositivo.
+     */
     private fun getContactsAndCalls() {
         val contactsMap = getContacts()
         val callsList = getCallLogs(contactsMap)
         displayCalls(callsList)
     }
 
+    /**
+     * Obtém os contatos do dispositivo e armazena-os em um mapa com o número
+     * do telefone como chave e o nome como valor.
+     *
+     * @return Um mapa com o número do telefone como chave e o nome como valor.
+     */
     private fun getContacts(): Map<String, String> {
         val contactsMap = mutableMapOf<String, String>()
         val contentResolver = contentResolver
@@ -88,6 +111,7 @@ class HistoricHomeActivity : AppCompatActivity() {
         cursor?.use {
             val nameIndex = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
             val numberIndex = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
+            // Percorre o cursor e forma o map com o nome e o número do telefone
             while (it.moveToNext()) {
                 val name = it.getString(nameIndex) ?: "Desconhecido"
                 val phoneNumber = it.getString(numberIndex)?.replace(Regex("[^0-9]"), "") ?: "Sem número"
@@ -97,6 +121,13 @@ class HistoricHomeActivity : AppCompatActivity() {
         return contactsMap
     }
 
+    /**
+     * Obtém o histórico de chamadas do dispositivo.
+     *
+     * @param contactsMap Um mapa com o número do telefone como chave e o nome como valor.
+     *
+     * @return Uma lista de contatos com o nome e o número do telefone.
+     */
     private fun getCallLogs(contactsMap: Map<String, String>): List<Contact> {
         val callsList = mutableListOf<Contact>()
         val contentResolver = contentResolver
@@ -115,6 +146,7 @@ class HistoricHomeActivity : AppCompatActivity() {
             val numberIndex = it.getColumnIndex(CallLog.Calls.NUMBER)
             while (it.moveToNext()) {
                 val phoneNumber = it.getString(numberIndex)?.replace(Regex("[^0-9]"), "") ?: "Sem número"
+                //Se o número não está no mapa, o nome será "Desconhecido"
                 val name = contactsMap[phoneNumber] ?: "Desconhecido"
                 callsList.add(Contact(name, phoneNumber))
             }
@@ -122,6 +154,10 @@ class HistoricHomeActivity : AppCompatActivity() {
         return callsList
     }
 
+    /**
+     * Exibe o histórico de chamadas na tela.
+     * @param callsList Uma lista de contatos com o nome e o número do telefone.
+     */
     private fun displayCalls(callsList: List<Contact>) {
         val recyclerView = findViewById<RecyclerView>(R.id.contactRecyclerView)
         val noCallsTextView = findViewById<TextView>(R.id.noCallsTextView)

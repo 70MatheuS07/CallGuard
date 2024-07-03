@@ -6,7 +6,7 @@ package com.ufes.callguard.Class
  * @property userName Nome do amigo
  * @property isSelected Indica se o usuário quer compartilhar da lista de bloqueios do amigo
  */
-data class Friend(val userName: String, val isSelected: Boolean) {
+data class Friend(val userName: String, var isSelected: Boolean) {
     // Default constructor
     /**
      * Construtor do objeto Friend

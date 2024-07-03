@@ -7,6 +7,9 @@ import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import com.ufes.callguard.R
 
+/**
+ * Activity que representa a Splash Screen do aplicativo, com sua logo.
+ */
 class SplashScreenActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
