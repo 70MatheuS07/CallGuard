@@ -13,9 +13,21 @@ import com.ufes.callguard.Class.Contact
 import com.ufes.callguard.Class.ContactReport
 import com.ufes.callguard.R
 
+/**
+ * Responsável por exibir os dialogs do aplicativo
+ */
 class ShowDialogs {
+    /**
+     * Exibe os dialogs
+     */
     object DialogUtils {
 
+        /**
+         * Exibe o dialog de confirmação de bloqueio de um número.
+         * @param context Contexto da aplicação.
+         * @param phoneNumber Número do contato que será bloqueado.
+         * @param onBlock Função a ser executada quando o usuário confirmar o bloqueio.
+         */
         fun showBlockDialog(context: Context, phoneNumber: String, onBlock: () -> Unit) {
             val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_box_block, null)
 
@@ -25,11 +37,11 @@ class ShowDialogs {
             val alertDialog = AlertDialog.Builder(context)
                 .setView(dialogView)
                 .create()
-
+            // Cancela o bloqueio.
             btnCancel.setOnClickListener {
                 alertDialog.dismiss()
             }
-
+            // Bloqueia o número de fato.
             btnBlock.setOnClickListener {
                 onBlock()
                 alertDialog.dismiss()
@@ -38,7 +50,13 @@ class ShowDialogs {
             alertDialog.show()
         }
 
-        fun showReportPopup(contact: Contact, context: Context, callback: ReportReasonCallback) {
+        /**
+         * Exibe o dropdown com os motivos de report para o usuário selecionar.
+         *
+         * @param context Contexto da aplicação.
+         * @param callback Função a ser executada quando o usuário selecionar um motivo de report.
+         */
+        fun showReportDialog(context: Context, callback: ReportReasonCallback) {
             val builder = AlertDialog.Builder(context)
             val inflater = LayoutInflater.from(context)
             val view = inflater.inflate(R.layout.report_reason_dialog, null)
@@ -65,6 +83,11 @@ class ShowDialogs {
             dialog.show()
         }
 
+        /**
+         * Exibe o pop-up quando é recebida uma ligação de um número suspeito.
+         * @param context Contexto da aplicação.
+         * @param report Ligação suspeita.
+         */
 
         fun showReportPopup(context: Context, report: ContactReport) {
             val builder = AlertDialog.Builder(context)
@@ -80,7 +103,7 @@ class ShowDialogs {
             val reasonIndex = report.type.indexOf(report.type.maxOrNull())
             val reasons = context.resources.getStringArray(R.array.report_reasons)
             val mostReportedReason = reasons.getOrNull(reasonIndex) ?: "Desconhecido"
-
+            //Motivo pelo qual aquele número mais foi reportado.
             tvReportReason.text = "Motivo: $mostReportedReason"
 
             buttonOk.setOnClickListener {
@@ -95,6 +118,9 @@ class ShowDialogs {
             dialog.show()
         }
 
+        /**
+         * Exibe uma mensagem com um botão de confirmação em um dialog.
+         */
         fun showMessageDialog(context: Context, message: String) {
             AlertDialog.Builder(context)
                 .setMessage(message)

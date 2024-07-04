@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ufes.callguard.Class.UserModel
-import com.ufes.callguard.Class.Amigo
+import com.ufes.callguard.Class.Friend
 import com.ufes.callguard.R
 import androidx.appcompat.widget.SearchView
 import com.ufes.callguard.Util.UserAdapter
@@ -29,7 +29,7 @@ class CommunityActivity : AppCompatActivity() {
 
     private lateinit var recyclerViewFriends: RecyclerView
     private lateinit var friendsAdapter: FriendsAdapter
-    private val friendsList = mutableListOf<Amigo>()
+    private val friendsList = mutableListOf<Friend>()
     private val friendsUsernames = mutableSetOf<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -83,6 +83,9 @@ class CommunityActivity : AppCompatActivity() {
         fetchCurrentUser()
     }
 
+    /**
+     * Método responsável por buscar usuários da coleção "usuario" do Firestore e mostrá-los na lista da busca.
+     */
     private fun fetchUsers() {
         val database = FirebaseFirestore.getInstance()
         database.collection("usuario")
@@ -104,6 +107,9 @@ class CommunityActivity : AppCompatActivity() {
             }
     }
 
+    /**
+     * Método responsável para buscar o usuário atual da coleção "usuario" do Firestore
+     */
     private fun fetchCurrentUser() {
         val database = FirebaseFirestore.getInstance()
         database.collection("usuario").document(currentUserId)
@@ -117,6 +123,10 @@ class CommunityActivity : AppCompatActivity() {
             }
     }
 
+    /**
+     *Responsável por filtrar a lista de usuários com base na entrada do usuário.
+     * @param query A consulta de pesquisa inserida pelo usuário.
+     */
     private fun handleSearchQuery(query: String?) {
         filteredUserList.clear()
         val searchText = query?.trim()?.lowercase() ?: ""
@@ -136,36 +146,47 @@ class CommunityActivity : AppCompatActivity() {
         userAdapter.notifyDataSetChanged()
     }
 
+    /**
+     * Método responável por exibir um pop-up para adicionar um amigo.
+     * @param user Usuário que será adicionado como amigo.
+     */
     private fun showAddFriendDialog(user: UserModel) {
         val builder = AlertDialog.Builder(this)
-        builder.setTitle("Add Friend")
-        builder.setMessage("Do you want to add ${user.getName()} to your friends list?")
-        builder.setPositiveButton("Yes") { dialog, _ ->
+        builder.setTitle("Adicionar Amigo")
+        builder.setMessage("Você deseja adicionar ${user.getName()} em sua lista de amigos?")
+        builder.setPositiveButton("Sim") { dialog, _ ->
             addFriend(user)
             dialog.dismiss()
         }
-        builder.setNegativeButton("No") { dialog, _ ->
+        builder.setNegativeButton("Não") { dialog, _ ->
             dialog.dismiss()
         }
         builder.show()
     }
 
+    /**
+     * Responsável por adicionar um novo amigo ao usuário atual.
+     * @param user Usuário que será adicionado como amigo.
+     */
     private fun addFriend(user: UserModel) {
-        val newFriend = Amigo(user.getName(), false)
+        val newFriend = Friend(user.getName(), false)
         currentUser.addAmigo(newFriend)
 
         val database = FirebaseFirestore.getInstance()
         database.collection("usuario").document(currentUserId)
             .set(currentUser)
             .addOnSuccessListener {
-                Toast.makeText(this, "${user.getName()} added to your friends list", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "${user.getName()} adicionado a sua lista de amigos", Toast.LENGTH_SHORT).show()
                 fetchFriends()
             }
             .addOnFailureListener { exception ->
-                Toast.makeText(this, "Failed to add friend", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Falha ao adicionar amigo", Toast.LENGTH_SHORT).show()
             }
     }
 
+    /**
+     * Método responsável por buscar e carregar a lista de amigos do usuário atual.
+     */
     private fun fetchFriends() {
         val database = FirebaseFirestore.getInstance()
         database.collection("usuario").document(currentUserId)
@@ -176,12 +197,16 @@ class CommunityActivity : AppCompatActivity() {
                     if (friendListData != null) {
                         friendsList.clear()
                         friendsUsernames.clear()
+                        //constrói a lista de amigos com os dados obtidos no banco de dados
                         for (friendData in friendListData) {
                             val userName = friendData["userName"] as String? ?: "Unknown"
+
                             val isSelected = friendData["selected"] as Boolean? ?: false
-                            friendsList.add(Amigo(userName, isSelected))
+                            friendsList.add(Friend(userName, isSelected))
+
                             friendsUsernames.add(userName)
                         }
+                        //Notifica o adapter sobre a alteração na lista de amigos
                         friendsAdapter.notifyDataSetChanged()
                         fetchUsers()
                     } else {

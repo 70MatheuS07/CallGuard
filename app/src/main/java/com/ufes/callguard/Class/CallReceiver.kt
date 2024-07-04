@@ -15,6 +15,9 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.ufes.callguard.Util.BlockNumberCallback
 import com.ufes.callguard.Util.ShowDialogs.DialogUtils.showReportPopup
 
+/**
+ * Classe responsável por receber as chamadas que serão recebidas e possivelmente bloqueá-las.
+ */
 class CallReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
@@ -39,6 +42,11 @@ class CallReceiver : BroadcastReceiver() {
         }
     }
 
+    /**
+     * Método responsável por checar os reports do número que está ligando e exibir o popup de report.
+     * @param context ambiente da aplicação.
+     * @param incomingNumber número que está ligando.
+     */
     private fun checkReports(context: Context?, incomingNumber: String) {
         val db = FirebaseFirestore.getInstance()
         val reportRef = db.collection("reports").document(incomingNumber)
@@ -51,7 +59,7 @@ class CallReceiver : BroadcastReceiver() {
                         if (Settings.canDrawOverlays(context)) {
                             showReportPopup(context, report)
                         } else {
-                            // Solicite a permissão de sobreposição
+                            // Solicitando a permissão de sobreposição
                             val intent = Intent(
                                 Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                                 Uri.parse("package:${context.packageName}")
@@ -66,7 +74,13 @@ class CallReceiver : BroadcastReceiver() {
         }
     }
 
-
+    /**
+     * Método responsável por checar se o número está na lista de bloqueio do usuário, se estiver,
+     * rejeitamos a chamada.
+     * @param context ambiente da aplicação.
+     * @param incomingNumber número que está ligando.
+     * @param callback Decide entre OnblockNumber ou OnNumberNotBlocked.
+     */
     private fun checkAndBlockNumber(context: Context?, incomingNumber: String, callback: BlockNumberCallback) {
         val db = FirebaseFirestore.getInstance()
         val userId = FirebaseAuth.getInstance().currentUser?.uid.toString()
@@ -123,7 +137,11 @@ class CallReceiver : BroadcastReceiver() {
             }
     }
 
-
+    /**
+     * Método responsável por rejeitar a chamada.
+     * @param context ambiente da aplicação.
+     *
+     */
     private fun rejectCall(context: Context?) {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
             val telecomManager =
@@ -135,13 +153,6 @@ class CallReceiver : BroadcastReceiver() {
                     )
                 } != PackageManager.PERMISSION_GRANTED
             ) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
                 return
             }
             telecomManager?.endCall()
