@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.ufes.callguard.Class.BlockedContactModel
 import com.ufes.callguard.R
 
-class BlockAdapter(private val blockList: MutableList<BlockedContactModel>, private val listener: OnItemClickListener) : RecyclerView.Adapter<BlockAdapter.BlockViewHolder>() {
+class BlockAdapter(private val blockList: List<BlockedContactModel>, private val listener: OnItemClickListener) : RecyclerView.Adapter<BlockAdapter.BlockViewHolder>() {
 
     interface OnItemClickListener {
         fun onItemClick(contact: BlockedContactModel)

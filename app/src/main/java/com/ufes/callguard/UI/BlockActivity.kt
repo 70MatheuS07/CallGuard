@@ -62,7 +62,7 @@ class BlockActivity : AppCompatActivity(), BlockAdapter.OnItemClickListener {
                             val number = block["number"] ?: "Sem número"
                             blockList.add(BlockedContactModel(name, number))
                         }
-                        fetchFriendsBlockedNumbers(userId)
+                        blockAdapter.notifyDataSetChanged()
                     } else {
                         Toast.makeText(this, "Nenhum número bloqueado encontrado", Toast.LENGTH_SHORT).show()
                     }
@@ -72,29 +72,6 @@ class BlockActivity : AppCompatActivity(), BlockAdapter.OnItemClickListener {
             }
             .addOnFailureListener { exception ->
                 Toast.makeText(this, "Erro ao carregar os números bloqueados", Toast.LENGTH_SHORT).show()
-            }
-    }
-
-    private fun fetchFriendsBlockedNumbers(userId: String) {
-        firestore.collection("usuario").document(userId)
-            .collection("amigoList")
-            .whereEqualTo("isSelected", true)
-            .get()
-            .addOnSuccessListener { friendsSnapshot ->
-                friendsSnapshot.documents.forEach { friendDocument ->
-                    val friendBlockedNumbers = friendDocument.get("blockList") as List<Map<String, String>>?
-                    friendBlockedNumbers?.forEach { block ->
-                        val name = block["name"] ?: "Desconhecido"
-                        val number = block["number"] ?: "Sem número"
-                        blockList.add(BlockedContactModel(name, number))
-                    }
-                }
-
-                // Notificar o adapter após combinar todos os números bloqueados
-                blockAdapter.notifyDataSetChanged()
-            }
-            .addOnFailureListener { exception ->
-                Toast.makeText(this, "Erro ao carregar os números bloqueados dos amigos", Toast.LENGTH_SHORT).show()
             }
     }
 
