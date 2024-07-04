@@ -57,7 +57,7 @@ class ContactAdapter(
         val contact = contactList[position]
 
         holder.contactName.text = contact.getContactName()
-        holder.contactNumber.text = contact.getContactNumber()
+        holder.contactNumber.text = formatPhoneNumber(contact.getContactNumber())
 
         if (isNumberInContacts(contact.getContactNumber())) {
             holder.contactImage.setImageResource(R.drawable.baseline_person_green_24)
@@ -95,5 +95,17 @@ class ContactAdapter(
             }
         }
         return false
+    }
+
+    private fun formatPhoneNumber(number: String): String {
+        return when {
+            number.length <= 4 -> number
+            number.length == 8 -> "${number.substring(0, 4)}-${number.substring(4)}"
+            number.length == 9 -> "${number.substring(0, 5)}-${number.substring(5)}"
+            number.length == 10 -> "(${number.substring(0, 2)}) ${number.substring(2, 6)}-${number.substring(6)}"
+            number.length == 11 -> "(${number.substring(0, 2)}) ${number.substring(2, 7)}-${number.substring(7)}"
+            number.startsWith("+") -> number
+            else -> number
+        }
     }
 }

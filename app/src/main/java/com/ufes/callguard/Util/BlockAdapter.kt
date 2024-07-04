@@ -65,7 +65,7 @@ class BlockAdapter(private val blockList: List<BlockedContactModel>, private val
     override fun onBindViewHolder(holder: BlockViewHolder, position: Int) {
         val currentItem = blockList[position]
         holder.blockedNameTextView.text = currentItem.name
-        holder.blockedNumberTextView.text = currentItem.number
+        holder.blockedNumberTextView.text = formatPhoneNumber(currentItem.number)
     }
 
     /**
@@ -73,4 +73,16 @@ class BlockAdapter(private val blockList: List<BlockedContactModel>, private val
      * @return O tamanho da lista de contatos bloqueados.
      */
     override fun getItemCount() = blockList.size
+
+    private fun formatPhoneNumber(number: String): String {
+        return when {
+            number.length <= 4 -> number
+            number.length == 8 -> "${number.substring(0, 4)}-${number.substring(4)}"
+            number.length == 9 -> "${number.substring(0, 5)}-${number.substring(5)}"
+            number.length == 10 -> "(${number.substring(0, 2)}) ${number.substring(2, 6)}-${number.substring(6)}"
+            number.length == 11 -> "(${number.substring(0, 2)}) ${number.substring(2, 7)}-${number.substring(7)}"
+            number.startsWith("+") -> number
+            else -> number
+        }
+    }
 }
