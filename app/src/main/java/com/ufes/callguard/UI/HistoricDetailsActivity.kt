@@ -27,7 +27,7 @@ import com.ufes.callguard.R
 import com.ufes.callguard.Util.ReportReasonCallback
 import com.ufes.callguard.Util.ShowDialogs.DialogUtils.showBlockDialog
 import com.ufes.callguard.Util.ShowDialogs.DialogUtils.showMessageDialog
-import com.ufes.callguard.Util.ShowDialogs.DialogUtils.showReportPopup
+import com.ufes.callguard.Util.ShowDialogs.DialogUtils.showReportDialog
 import com.ufes.callguard.databinding.ActivityHistoricDetailsBinding
 
 /**
@@ -74,7 +74,7 @@ class HistoricDetailsActivity : AppCompatActivity() {
             }
         }
         binding.ButtonReport.setOnClickListener {
-            showReportPopup(contact, this, object : ReportReasonCallback {
+            showReportDialog( this, object : ReportReasonCallback {
                 override fun onReasonSelected(reasonIndex: Int) {
                     val contactReport = ContactReport(contact.getContactName(), contact.getContactNumber(), mutableListOf(0, 0, 0, 0))
                     addContactToReportedList(contactReport, this@HistoricDetailsActivity, reasonIndex)
