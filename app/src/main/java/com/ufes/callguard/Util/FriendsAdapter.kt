@@ -5,7 +5,6 @@ import android.view.ViewGroup
 import android.widget.Switch
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ufes.callguard.Class.Amigo
 import com.ufes.callguard.R
@@ -14,21 +13,20 @@ class FriendsAdapter(
     private val context: Context,
     private val friendsList: List<Amigo>,
     private val currentUserId: String
-) : RecyclerView.Adapter<FriendsAdapter.FriendsViewHolder>() {
+) : RecyclerView.Adapter<FriendsAdapter.FriendViewHolder>() {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FriendsViewHolder {
-        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.friend_list, parent, false)
-        return FriendsViewHolder(itemView)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FriendViewHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.friend_list, parent, false)
+        return FriendViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: FriendsViewHolder, position: Int) {
-        val currentFriend = friendsList[position]
-        holder.userNameTextView.text = currentFriend.userName
-        holder.friendSwitch.isChecked = currentFriend.isSelected
+    override fun onBindViewHolder(holder: FriendViewHolder, position: Int) {
+        val friend = friendsList[position]
+        holder.friendNameTextView.text = friend.userName
+        holder.friendSwitch.isChecked = friend.isSelected
 
         holder.friendSwitch.setOnCheckedChangeListener { _, isChecked ->
-            currentFriend.isSelected = isChecked
-            updateFriendSelection(currentFriend)
+            updateFriendSelection(friend, isChecked)
         }
     }
 
@@ -36,40 +34,37 @@ class FriendsAdapter(
         return friendsList.size
     }
 
-    private fun updateFriendSelection(amigo: Amigo) {
+    private fun updateFriendSelection(friend: Amigo, isSelected: Boolean) {
         val database = FirebaseFirestore.getInstance()
-        val currentUserRef = database.collection("usuario").document(currentUserId)
+        val userDocRef = database.collection("usuario").document(currentUserId)
 
-        currentUserRef.get()
-            .addOnSuccessListener { documentSnapshot ->
-                if (documentSnapshot.exists()) {
-                    val amigoListData = documentSnapshot.get("amigoList") as? List<Map<String, Any>>?
-                    val updatedAmigoList = amigoListData?.map {
-                        val userName = it["userName"] as String? ?: ""
-                        val isSelected = it["isSelected"] as Boolean? ?: false
-                        if (userName == amigo.userName) {
-                            mapOf("userName" to userName, "isSelected" to amigo.isSelected)
-                        } else {
-                            it
+        userDocRef.get().addOnSuccessListener { document ->
+            if (document != null && document.exists()) {
+                val friendListData = document.get("amigoList") as List<Map<String, Any>>?
+                if (friendListData != null) {
+                    val updatedFriendList = friendListData.toMutableList()
+                    for (friendData in updatedFriendList) {
+                        if (friendData["userName"] == friend.userName) {
+                            (friendData as MutableMap<String, Any>)["selected"] = isSelected
+                            break
                         }
-                    } ?: emptyList()
-
-                    currentUserRef.update("amigoList", updatedAmigoList)
+                    }
+                    userDocRef.update("amigoList", updatedFriendList)
                         .addOnSuccessListener {
-                            // Atualização bem-sucedida
+                            // Optionally, handle success
                         }
-                        .addOnFailureListener { exception ->
-                            // Tratar falha na atualização
+                        .addOnFailureListener { e ->
+                            // Optionally, handle failure
                         }
                 }
             }
-            .addOnFailureListener { exception ->
-                // Tratar falha na leitura do documento
-            }
+        }.addOnFailureListener { e ->
+            // Optionally, handle failure
+        }
     }
 
-    inner class FriendsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val userNameTextView: TextView = itemView.findViewById(R.id.friendNameTextView)
+    class FriendViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val friendNameTextView: TextView = itemView.findViewById(R.id.friendNameTextView)
         val friendSwitch: Switch = itemView.findViewById(R.id.friendSwitch)
     }
 }

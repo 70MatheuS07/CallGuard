@@ -178,7 +178,7 @@ class CommunityActivity : AppCompatActivity() {
                         friendsUsernames.clear()
                         for (friendData in friendListData) {
                             val userName = friendData["userName"] as String? ?: "Unknown"
-                            val isSelected = friendData["isSelected"] as Boolean? ?: false
+                            val isSelected = friendData["selected"] as Boolean? ?: false
                             friendsList.add(Amigo(userName, isSelected))
                             friendsUsernames.add(userName)
                         }
