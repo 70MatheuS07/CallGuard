@@ -1,5 +1,3 @@
-package com.ufes.callguard.Util
-
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
@@ -24,6 +22,7 @@ class FriendsAdapter(
     private val currentUserId: String
 ) : RecyclerView.Adapter<FriendsAdapter.FriendViewHolder>() {
 
+
     private val firestore = FirebaseFirestore.getInstance()
 
     /**
@@ -32,8 +31,9 @@ class FriendsAdapter(
      * @param viewType O tipo de view da nova view.
      * @return Um novo FriendViewHolder.
      */
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FriendViewHolder {
-        val view = LayoutInflater.from(context).inflate(R.layout.friend_list, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.friend_list, parent, false)
         return FriendViewHolder(view)
     }
 
@@ -48,10 +48,7 @@ class FriendsAdapter(
         holder.friendSwitch.isChecked = friend.isSelected
 
         holder.friendSwitch.setOnCheckedChangeListener { _, isChecked ->
-            // Atualize o estado de seleção do amigo
-            friend.isSelected = isChecked
-            // Atualize a alteração no Firebase
-            updateFriendSelectionInDatabase(friend)
+            updateFriendSelection(friend, isChecked)
         }
     }
 
@@ -63,36 +60,36 @@ class FriendsAdapter(
         return friendsList.size
     }
 
-    /**
+/**
      * Atualiza o estado de seleção de um amigo no Firebase.
      * @param friend O amigo a ser atualizado.
      */
-    private fun updateFriendSelectionInDatabase(friend: Friend) {
-        // Encontre o documento do usuário atual no Firestore
-        val userDocumentRef = firestore.collection("usuario").document(currentUserId)
+    private fun updateFriendSelection(friend: Friend, isSelected: Boolean) {
+        val database = FirebaseFirestore.getInstance()
+        val userDocRef = database.collection("usuario").document(currentUserId)
 
-        userDocumentRef.get().addOnSuccessListener { documentSnapshot ->
-            if (documentSnapshot.exists()) {
-                // Obtenha a lista de amigos do documento
-                val amigoList = documentSnapshot.toObject(UserModel::class.java)?.getAmigoList()
-                amigoList?.let {
-                    // Encontre o amigo e atualize o campo selected
-                    for (amigo in it) {
-                        if (amigo.userName == friend.userName) {
-                            amigo.isSelected = friend.isSelected
+        userDocRef.get().addOnSuccessListener { document ->
+            if (document != null && document.exists()) {
+                val friendListData = document.get("amigoList") as List<Map<String, Any>>?
+                if (friendListData != null) {
+                    val updatedFriendList = friendListData.toMutableList()
+                    for (friendData in updatedFriendList) {
+                        if (friendData["userName"] == friend.userName) {
+                            (friendData as MutableMap<String, Any>)["selected"] = isSelected
                             break
                         }
                     }
-                    // Salve a lista atualizada de volta no Firestore
-                    userDocumentRef.update("amigoList", it)
+                    userDocRef.update("amigoList", updatedFriendList)
                         .addOnSuccessListener {
-                            // Sucesso ao atualizar
+                            // Optionally, handle success
                         }
                         .addOnFailureListener { e ->
-                            // Erro ao atualizar
+                            // Optionally, handle failure
                         }
                 }
             }
+        }.addOnFailureListener { e ->
+            // Optionally, handle failure
         }
     }
 

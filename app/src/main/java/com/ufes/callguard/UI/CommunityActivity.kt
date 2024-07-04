@@ -1,5 +1,6 @@
 package com.ufes.callguard.UI
 
+import FriendsAdapter
 import android.os.Bundle
 import android.view.View
 import android.widget.LinearLayout
@@ -14,7 +15,6 @@ import com.ufes.callguard.Class.UserModel
 import com.ufes.callguard.Class.Friend
 import com.ufes.callguard.R
 import androidx.appcompat.widget.SearchView
-import com.ufes.callguard.Util.FriendsAdapter
 import com.ufes.callguard.Util.UserAdapter
 
 class CommunityActivity : AppCompatActivity() {
@@ -200,8 +200,10 @@ class CommunityActivity : AppCompatActivity() {
                         //constrói a lista de amigos com os dados obtidos no banco de dados
                         for (friendData in friendListData) {
                             val userName = friendData["userName"] as String? ?: "Unknown"
-                            val isSelected = friendData["isSelected"] as Boolean? ?: false
+
+                            val isSelected = friendData["selected"] as Boolean? ?: false
                             friendsList.add(Friend(userName, isSelected))
+
                             friendsUsernames.add(userName)
                         }
                         //Notifica o adapter sobre a alteração na lista de amigos
