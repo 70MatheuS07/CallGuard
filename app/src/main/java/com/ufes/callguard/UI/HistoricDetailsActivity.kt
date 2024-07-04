@@ -27,9 +27,12 @@ import com.ufes.callguard.R
 import com.ufes.callguard.Util.ReportReasonCallback
 import com.ufes.callguard.Util.ShowDialogs.DialogUtils.showBlockDialog
 import com.ufes.callguard.Util.ShowDialogs.DialogUtils.showMessageDialog
-import com.ufes.callguard.Util.ShowDialogs.DialogUtils.showReportPopup
+import com.ufes.callguard.Util.ShowDialogs.DialogUtils.showReportDialog
 import com.ufes.callguard.databinding.ActivityHistoricDetailsBinding
 
+/**
+ * Activity responsável pela tela de ações que o usuário pode realizar com um número do histórico
+ */
 class HistoricDetailsActivity : AppCompatActivity() {
     private lateinit var binding: ActivityHistoricDetailsBinding
 
@@ -40,12 +43,13 @@ class HistoricDetailsActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         var contact: Contact
+        // Verifica a versão do Android para obter o objeto Contact corretamente
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             contact = intent.getParcelableExtra<Contact>("contact", Contact::class.java)!!
         } else {
             contact = intent.getParcelableExtra<Contact>("contact")!!
         }
-
+        // Verifica a permissão quanto a sobreposição
         if (!Settings.canDrawOverlays(this)) {
             val intent = Intent(
                 Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
@@ -70,7 +74,7 @@ class HistoricDetailsActivity : AppCompatActivity() {
             }
         }
         binding.ButtonReport.setOnClickListener {
-            showReportPopup(contact, this, object : ReportReasonCallback {
+            showReportDialog( this, object : ReportReasonCallback {
                 override fun onReasonSelected(reasonIndex: Int) {
                     val contactReport = ContactReport(contact.getContactName(), contact.getContactNumber(), mutableListOf(0, 0, 0, 0))
                     addContactToReportedList(contactReport, this@HistoricDetailsActivity, reasonIndex)
@@ -80,7 +84,10 @@ class HistoricDetailsActivity : AppCompatActivity() {
     }
 
     /**
-     * Função que adiciona o número bloqueado ao banco de dados do usuário
+     * Função que adiciona o número bloqueado ao banco de dados do usuário.
+     * @param userId ID do usuário logado.
+     * @param contact Contato a ser bloqueado.
+     * @param context Contexto da activity.
      * */
     private fun addContactToBlockList(userId: String, contact: Contact, context: Context) {
         val userDocRef = FirebaseFirestore.getInstance().collection("usuario").document(userId)
@@ -115,6 +122,12 @@ class HistoricDetailsActivity : AppCompatActivity() {
             }
     }
 
+    /**
+     * Função que adiciona o contato à coleção de números reportados no Firebase.
+     * @param contact Contato a ser reportado.
+     * @param context Contexto da activity.
+     * @param reasonIndex A posição da lista que corresponde ao motivo do report.
+     */
     private fun addContactToReportedList(contact: ContactReport, context: Context, reasonIndex: Int) {
         val db = FirebaseFirestore.getInstance()
         val reportRef = db.collection("reports").document(contact.number)
@@ -128,6 +141,7 @@ class HistoricDetailsActivity : AppCompatActivity() {
                     reportRef.set(existingReport.toHashMap())
                         .addOnSuccessListener {
                             Log.d("Firestore", "Report atualizado com sucesso")
+                            //Verifica se o número foi reportado mais de 100 vezes
                             checkAndAddToHighReports(existingReport)
                         }
                         .addOnFailureListener { e ->
@@ -142,6 +156,7 @@ class HistoricDetailsActivity : AppCompatActivity() {
                 reportRef.set(newReport.toHashMap())
                     .addOnSuccessListener {
                         Log.d("Firestore", "Report adicionado com sucesso")
+                        //Verifica se o número foi reportado mais de 100 vezes
                         checkAndAddToHighReports(newReport)
                     }
                     .addOnFailureListener { e ->
@@ -153,7 +168,11 @@ class HistoricDetailsActivity : AppCompatActivity() {
         }
     }
 
-
+    /**
+     * Responsável por verificar se o número foi reportado mais de 100 vezes e, se sim, adicionar
+     * em uma coleção de números reportados muitas vezes.
+     * @param contact Contato a ser verificado.
+     */
     private fun checkAndAddToHighReports(contact: ContactReport) {
         val totalReports = contact.type.sum()
         if (totalReports > 100) {
