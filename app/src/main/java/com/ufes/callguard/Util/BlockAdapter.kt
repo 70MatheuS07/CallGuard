@@ -74,6 +74,11 @@ class BlockAdapter(private val blockList: List<BlockedContactModel>, private val
      */
     override fun getItemCount() = blockList.size
 
+    /**
+     * Formata um número de telefone para o formato correto.
+     * @param number O número de telefone a ser formatado.
+     * @return O número de telefone formatado.
+     */
     private fun formatPhoneNumber(number: String): String {
         return when {
             number.length <= 4 -> number

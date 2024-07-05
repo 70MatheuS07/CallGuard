@@ -27,6 +27,9 @@ import com.ufes.callguard.Util.ShowDialogs.DialogUtils.showMessageDialog
 import com.ufes.callguard.Util.ShowDialogs.DialogUtils.showReportDialog
 import com.ufes.callguard.databinding.ActivityHistoricDetailsBinding
 
+/**
+ * Activity responsável pela tela de ações que o usuário pode realizar com um número do histórico
+ */
 class HistoricDetailsActivity : AppCompatActivity() {
     private lateinit var binding: ActivityHistoricDetailsBinding
 
@@ -82,6 +85,10 @@ class HistoricDetailsActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Função para fazer uma chamada telefônica.
+     * @param phoneNumber Número do telefone a ser chamado.
+     */
     private fun makePhoneCall(phoneNumber: String) {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CALL_PHONE), 1)
@@ -92,6 +99,12 @@ class HistoricDetailsActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Função chamada quando o usuário responde à solicitação de permissão para fazer uma chamada telefônica.
+     * @param requestCode Código da solicitação de permissão.
+     * @param permissions Array com as permissões solicitadas.
+     * @param grantResults Array com os resultados das permissões.
+     */
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == 1) {
@@ -104,6 +117,12 @@ class HistoricDetailsActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Função que adiciona o número bloqueado ao banco de dados do usuário.
+     * @param userId ID do usuário logado.
+     * @param contact Contato a ser bloqueado.
+     * @param context Contexto da activity.
+     * */
     private fun addContactToBlockList(userId: String, contact: Contact, context: Context) {
         val userDocRef = FirebaseFirestore.getInstance().collection("usuario").document(userId)
 
@@ -137,6 +156,12 @@ class HistoricDetailsActivity : AppCompatActivity() {
             }
     }
 
+    /**
+     * Função que adiciona o contato à coleção de números reportados no Firebase.
+     * @param contact Contato a ser reportado.
+     * @param context Contexto da activity.
+     * @param reasonIndex A posição da lista que corresponde ao motivo do report.
+     */
     private fun addContactToReportedList(contact: ContactReport, context: Context, reasonIndex: Int) {
         val db = FirebaseFirestore.getInstance()
         val reportRef = db.collection("reports").document(contact.number)
@@ -149,6 +174,7 @@ class HistoricDetailsActivity : AppCompatActivity() {
                     reportRef.set(existingReport.toHashMap())
                         .addOnSuccessListener {
                             Log.d("Firestore", "Report atualizado com sucesso")
+                            //Verifica se o número foi reportado mais de 100 vezes
                             checkAndAddToHighReports(existingReport)
                         }
                         .addOnFailureListener { e ->
@@ -162,6 +188,7 @@ class HistoricDetailsActivity : AppCompatActivity() {
                 reportRef.set(newReport.toHashMap())
                     .addOnSuccessListener {
                         Log.d("Firestore", "Report adicionado com sucesso")
+                        //Verifica se o número foi reportado mais de 100 vezes
                         checkAndAddToHighReports(newReport)
                     }
                     .addOnFailureListener { e ->
@@ -173,6 +200,11 @@ class HistoricDetailsActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Responsável por verificar se o número foi reportado mais de 100 vezes e, se sim, adicionar
+     * em uma coleção de números reportados muitas vezes.
+     * @param contact Contato a ser verificado.
+     */
     private fun checkAndAddToHighReports(contact: ContactReport) {
         val totalReports = contact.type.sum()
         if (totalReports > 100) {
