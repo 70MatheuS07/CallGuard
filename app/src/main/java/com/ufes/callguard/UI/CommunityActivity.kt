@@ -17,6 +17,9 @@ import com.ufes.callguard.R
 import androidx.appcompat.widget.SearchView
 import com.ufes.callguard.Util.UserAdapter
 
+/**
+ * Activity que representa a tela de comunidade do aplicativo.
+ */
 class CommunityActivity : AppCompatActivity() {
 
     private lateinit var searchView: SearchView
