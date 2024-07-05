@@ -51,7 +51,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:hint="@string/celular"/>
+            android:hint="@string/celular"
+            android:inputType="phone" />
 
         <EditText
             android:drawableStart="@drawable/baseline_key_24"
