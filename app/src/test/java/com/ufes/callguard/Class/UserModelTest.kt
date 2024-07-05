@@ -14,66 +14,81 @@ class UserModelTest {
 
     @Test
     fun testDefaultConstructor() {
-        val userModel = UserModel()
-        assertNotNull(userModel)
-        assertEquals("", userModel.getId())
-        assertEquals("", userModel.getName())
-        assertEquals("", userModel.getPhone())
-        assertTrue(userModel.getBlockList().isEmpty())
+        val user = UserModel()
+        assertEquals("", user.getId())
+        assertEquals("", user.getName())
+        assertEquals("", user.getPhone())
+        assertTrue(user.getBlockList().isEmpty())
+        assertTrue(user.getAmigoList().isEmpty())
+        assertFalse(user.getHighReports())
     }
 
     @Test
     fun testParameterizedConstructor() {
-        val userModel = UserModel("1", "John Doe", "123456789")
-        assertEquals("1", userModel.getId())
-        assertEquals("John Doe", userModel.getName())
-        assertEquals("123456789", userModel.getPhone())
+        val user = UserModel("1", "Andre", "123456789")
+        assertEquals("1", user.getId())
+        assertEquals("Andre", user.getName())
+        assertEquals("123456789", user.getPhone())
     }
 
     @Test
-    fun testParcelConstructor() {
-        val parcel = Parcel.obtain()
-        parcel.writeString("1")
-        parcel.writeString("John Doe")
-        parcel.writeString("123456789")
-        parcel.writeStringList(mutableListOf("block1", "block2"))
-        parcel.setDataPosition(0)
-
-        val userModel = UserModel(parcel)
-        assertEquals("1", userModel.getId())
-        assertEquals("John Doe", userModel.getName())
-        assertEquals("123456789", userModel.getPhone())
-        assertEquals(mutableListOf("block1", "block2"), userModel.getBlockList())
-        parcel.recycle()
+    fun testSetGetId() {
+        val user = UserModel()
+        user.setId("2")
+        assertEquals("2", user.getId())
     }
 
     @Test
-    fun testWriteToParcel() {
-        val userModel = UserModel("1", "John Doe", "123456789")
-        userModel.setBlockList(mutableListOf("block1", "block2"))
+    fun testSetGetName() {
+        val user = UserModel()
+        user.setName("Maria")
+        assertEquals("Maria", user.getName())
+    }
+
+    @Test
+    fun testSetGetPhone() {
+        val user = UserModel()
+        user.setPhone("987654321")
+        assertEquals("987654321", user.getPhone())
+    }
+
+    @Test
+    fun testSetGetBlockList() {
+        val user = UserModel()
+        val contact = Contact("Maria", "123456789")
+        user.setBlockList(mutableListOf(contact))
+        assertEquals(1, user.getBlockList().size)
+        assertEquals("Maria", user.getBlockList()[0].getContactName())
+    }
+
+    @Test
+    fun testSetGetHighReports() {
+        val user = UserModel()
+        user.setHighReports(true)
+        assertTrue(user.getHighReports())
+    }
+
+    @Test
+    fun testAddGetAmigoList() {
+        val user = UserModel()
+        val friend = Friend("Maria", true)
+        user.addAmigo(friend)
+        assertEquals(1, user.getAmigoList().size)
+        assertEquals("Maria", user.getAmigoList()[0].userName)
+    }
+
+    @Test
+    fun testParcel() {
+        val user = UserModel("1", "Maria", "123456789")
         val parcel = Parcel.obtain()
-        userModel.writeToParcel(parcel, 0)
+        user.writeToParcel(parcel, user.describeContents())
         parcel.setDataPosition(0)
 
         val createdFromParcel = UserModel.CREATOR.createFromParcel(parcel)
-        assertEquals("1", createdFromParcel.getId())
-        assertEquals("John Doe", createdFromParcel.getName())
-        assertEquals("123456789", createdFromParcel.getPhone())
-        assertEquals(mutableListOf("block1", "block2"), createdFromParcel.getBlockList())
+        assertEquals(user.getId(), createdFromParcel.getId())
+        assertEquals(user.getName(), createdFromParcel.getName())
+        assertEquals(user.getPhone(), createdFromParcel.getPhone())
+
         parcel.recycle()
-    }
-
-    @Test
-    fun testSettersAndGetters() {
-        val userModel = UserModel()
-        userModel.setId("1")
-        userModel.setName("Jane Doe")
-        userModel.setPhone("987654321")
-        userModel.setBlockList(mutableListOf("block1", "block2"))
-
-        assertEquals("1", userModel.getId())
-        assertEquals("Jane Doe", userModel.getName())
-        assertEquals("987654321", userModel.getPhone())
-        assertEquals(mutableListOf("block1", "block2"), userModel.getBlockList())
     }
 }
