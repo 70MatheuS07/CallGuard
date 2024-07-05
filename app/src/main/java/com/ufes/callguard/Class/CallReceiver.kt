@@ -94,19 +94,21 @@ class CallReceiver : BroadcastReceiver() {
                     val user = document.toObject(UserModel::class.java)
                     val blockList = document.get("blockList") as? List<Map<String, Any>>
 
+                    // Verificar a lista de bloqueio do usuário
                     if (blockList != null) {
                         for (contact in blockList) {
                             val number = contact["number"] as? String
                             if (number != null && number == incomingNumber) {
                                 rejectCall(context)
                                 blocked = true
-                                Log.d("CallReceiver", "Blocked call from: $incomingNumber")
+                                Log.d("CallReceiver", "Ligação bloqueada de: $incomingNumber")
                                 callback.onNumberBlocked()
                                 return@addOnSuccessListener
                             }
                         }
                     }
 
+                    // Verificar se o usuário possui muitos relatórios
                     if (user != null && user.getHighReports()) {
                         db.collection("high_reports").document(incomingNumber)
                             .get()
@@ -114,27 +116,85 @@ class CallReceiver : BroadcastReceiver() {
                                 if (reportDoc.exists()) {
                                     rejectCall(context)
                                     blocked = true
-                                    Log.d("CallReceiver", "Blocked call from reports: $incomingNumber")
+                                    Log.d("CallReceiver", "Ligação bloqueada pelos reports: $incomingNumber")
                                     callback.onNumberBlocked()
                                 } else {
-                                    callback.onNumberNotBlocked()
+                                    checkFriendsBlockList(db, user, incomingNumber, context, callback)
                                 }
                             }
                             .addOnFailureListener { e ->
-                                Log.e("CallReceiver", "Error checking reports", e)
-                                callback.onNumberNotBlocked()
+                                Log.e("CallReceiver", "Erro ao checar reports", e)
+                                checkFriendsBlockList(db, user, incomingNumber, context, callback)
                             }
-                    } else if (!blocked) {
-                        callback.onNumberNotBlocked()
+                    } else {
+                        //Verifica o compartilhamento da lista de bloqueio
+                        checkFriendsBlockList(db, user!!, incomingNumber, context, callback)
                     }
                 } else {
                     callback.onNumberNotBlocked()
                 }
             }
             .addOnFailureListener { e ->
-                Log.e("CallReceiver", "Error checking blocked numbers", e)
+                Log.e("CallReceiver", "Erro ao checar números bloqueados", e)
                 callback.onNumberNotBlocked()
             }
+    }
+
+    /**
+     * Método responsável por checar se o número está na lista de bloqueio de amigos habilitados para
+     * o compartilhamento de lista de bloqueio, caso sim, rejeitamos a chamada.
+     *  @param db banco de dados do Firebase.
+     *  @param user usuário logado.
+     *  @param incomingNumber número que está ligando.
+     *  @param context ambiente da aplicação.
+     *  @param callback Decide entre OnblockNumber ou OnNumberNotBlocked.
+     */
+    private fun checkFriendsBlockList(db: FirebaseFirestore, user: UserModel, incomingNumber: String, context: Context?, callback: BlockNumberCallback) {
+        val amigoList = user.getAmigoList()
+
+        val selectedFriends = amigoList.filter { it.isSelected }
+
+        if (selectedFriends.isEmpty()) {
+            callback.onNumberNotBlocked()
+            return
+        }
+
+        var pendingRequests = selectedFriends.size
+        var blocked = false
+
+        selectedFriends.forEach { friend ->
+            db.collection("usuario").whereEqualTo("name", friend.userName)
+                .get()
+                .addOnSuccessListener { documents ->
+                    if (documents != null && !documents.isEmpty) {
+                        val friendDoc = documents.first()
+                        val friendBlockList = friendDoc.get("blockList") as? List<Map<String, Any>>
+
+                        if (friendBlockList != null) {
+                            for (contact in friendBlockList) {
+                                val number = contact["number"] as? String
+                                if (number != null && number == incomingNumber) {
+                                    rejectCall(context)
+                                    blocked = true
+                                    Log.d("CallReceiver", "ligacao rejeitada pela lista de bloqueio de amigos: $incomingNumber")
+                                    callback.onNumberBlocked()
+                                    return@addOnSuccessListener
+                                }
+                            }
+                        }
+                    }
+
+                    if (!blocked && --pendingRequests == 0) {
+                        callback.onNumberNotBlocked()
+                    }
+                }
+                .addOnFailureListener { e ->
+                    Log.e("CallReceiver", "Erro ao checar a lista de bloqueio de amigos", e)
+                    if (!blocked && --pendingRequests == 0) {
+                        callback.onNumberNotBlocked()
+                    }
+                }
+        }
     }
 
     /**

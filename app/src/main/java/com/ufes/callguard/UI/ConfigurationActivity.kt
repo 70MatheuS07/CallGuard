@@ -43,10 +43,10 @@ class ConfigurationActivity : AppCompatActivity() {
                     updateUserModelInDatabase(user!!)
                 }
             } else {
-                Log.d("Firestore", "No such document")
+                Log.d("Firestore", "Documento não encontrado")
             }
         }.addOnFailureListener { exception ->
-            Log.d("Firestore", "get failed with ", exception)
+            Log.d("Firestore", "Falha com", exception)
         }
     }
 
