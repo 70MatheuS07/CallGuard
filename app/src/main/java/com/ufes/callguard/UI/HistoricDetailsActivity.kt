@@ -1,23 +1,20 @@
 package com.ufes.callguard.UI
 
+import android.Manifest
 import android.app.AlertDialog
-import android.app.Dialog
-import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.BlockedNumberContract
 import android.provider.Settings
 import android.util.Log
-import android.view.LayoutInflater
-import android.widget.Button
-import androidx.activity.enableEdgeToEdge
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.core.app.ActivityCompat
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ufes.callguard.Class.Contact
@@ -30,9 +27,6 @@ import com.ufes.callguard.Util.ShowDialogs.DialogUtils.showMessageDialog
 import com.ufes.callguard.Util.ShowDialogs.DialogUtils.showReportDialog
 import com.ufes.callguard.databinding.ActivityHistoricDetailsBinding
 
-/**
- * Activity responsável pela tela de ações que o usuário pode realizar com um número do histórico
- */
 class HistoricDetailsActivity : AppCompatActivity() {
     private lateinit var binding: ActivityHistoricDetailsBinding
 
@@ -43,13 +37,11 @@ class HistoricDetailsActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         var contact: Contact
-        // Verifica a versão do Android para obter o objeto Contact corretamente
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             contact = intent.getParcelableExtra<Contact>("contact", Contact::class.java)!!
         } else {
             contact = intent.getParcelableExtra<Contact>("contact")!!
         }
-        // Verifica a permissão quanto a sobreposição
         if (!Settings.canDrawOverlays(this)) {
             val intent = Intent(
                 Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
@@ -58,37 +50,60 @@ class HistoricDetailsActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        binding.textName.setText(contact?.getContactName())
-        binding.textNumber.setText(contact?.getContactNumber())
+        binding.textName.text = contact.getContactName()
+        binding.textNumber.text = contact.getContactNumber()
 
         binding.ButtonBlock.setOnClickListener {
-            contact?.getContactNumber()?.let { phoneNumber ->
+            contact.getContactNumber()?.let { phoneNumber ->
                 showBlockDialog(this, phoneNumber) {
                     addContactToBlockList(
                         FirebaseAuth.getInstance().currentUser!!.uid,
                         contact,
                         this
                     )
-
                 }
             }
         }
+
         binding.ButtonReport.setOnClickListener {
-            showReportDialog( this, object : ReportReasonCallback {
+            showReportDialog(this, object : ReportReasonCallback {
                 override fun onReasonSelected(reasonIndex: Int) {
                     val contactReport = ContactReport(contact.getContactName(), contact.getContactNumber(), mutableListOf(0, 0, 0, 0))
                     addContactToReportedList(contactReport, this@HistoricDetailsActivity, reasonIndex)
                 }
             })
         }
+
+        binding.ButtonCall.setOnClickListener {
+            val phoneNumber = contact.getContactNumber()
+            if (phoneNumber != null) {
+                makePhoneCall(phoneNumber)
+            }
+        }
     }
 
-    /**
-     * Função que adiciona o número bloqueado ao banco de dados do usuário.
-     * @param userId ID do usuário logado.
-     * @param contact Contato a ser bloqueado.
-     * @param context Contexto da activity.
-     * */
+    private fun makePhoneCall(phoneNumber: String) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CALL_PHONE), 1)
+        } else {
+            val intent = Intent(Intent.ACTION_CALL)
+            intent.data = Uri.parse("tel:$phoneNumber")
+            startActivity(intent)
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 1) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                val phoneNumber = binding.textNumber.text.toString()
+                makePhoneCall(phoneNumber)
+            } else {
+                Toast.makeText(this, "Permission DENIED", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
     private fun addContactToBlockList(userId: String, contact: Contact, context: Context) {
         val userDocRef = FirebaseFirestore.getInstance().collection("usuario").document(userId)
 
@@ -122,26 +137,18 @@ class HistoricDetailsActivity : AppCompatActivity() {
             }
     }
 
-    /**
-     * Função que adiciona o contato à coleção de números reportados no Firebase.
-     * @param contact Contato a ser reportado.
-     * @param context Contexto da activity.
-     * @param reasonIndex A posição da lista que corresponde ao motivo do report.
-     */
     private fun addContactToReportedList(contact: ContactReport, context: Context, reasonIndex: Int) {
         val db = FirebaseFirestore.getInstance()
         val reportRef = db.collection("reports").document(contact.number)
 
         reportRef.get().addOnSuccessListener { document ->
             if (document.exists()) {
-                // Documento já existe, atualizar a lista de tipos
                 val existingReport = document.toObject(ContactReport::class.java)
                 existingReport?.type?.let {
                     it[reasonIndex] = it[reasonIndex] + 1
                     reportRef.set(existingReport.toHashMap())
                         .addOnSuccessListener {
                             Log.d("Firestore", "Report atualizado com sucesso")
-                            //Verifica se o número foi reportado mais de 100 vezes
                             checkAndAddToHighReports(existingReport)
                         }
                         .addOnFailureListener { e ->
@@ -149,14 +156,12 @@ class HistoricDetailsActivity : AppCompatActivity() {
                         }
                 }
             } else {
-                // Documento não existe, criar um novo
                 val initialType = mutableListOf(0, 0, 0, 0)
                 initialType[reasonIndex] = 1
                 val newReport = ContactReport(contact.name, contact.number, initialType)
                 reportRef.set(newReport.toHashMap())
                     .addOnSuccessListener {
                         Log.d("Firestore", "Report adicionado com sucesso")
-                        //Verifica se o número foi reportado mais de 100 vezes
                         checkAndAddToHighReports(newReport)
                     }
                     .addOnFailureListener { e ->
@@ -168,11 +173,6 @@ class HistoricDetailsActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Responsável por verificar se o número foi reportado mais de 100 vezes e, se sim, adicionar
-     * em uma coleção de números reportados muitas vezes.
-     * @param contact Contato a ser verificado.
-     */
     private fun checkAndAddToHighReports(contact: ContactReport) {
         val totalReports = contact.type.sum()
         if (totalReports > 100) {
