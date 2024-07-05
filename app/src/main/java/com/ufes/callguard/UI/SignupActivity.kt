@@ -15,16 +15,22 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.firestore.FirebaseFirestore
+import com.ufes.callguard.Util.PhoneNumberMask
 
 /**
  * Activity que representa a tela de cadastro do usuário.
  */
 class SignupActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySignupBinding
+
+    private val phoneNumberTextWatcher = PhoneNumberMask(12)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySignupBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Adiciona o TextWatcher ao EditText do número de telefone
+        binding.editNumberSignup.addTextChangedListener(phoneNumberTextWatcher)
 
         binding.buttonSignup.setOnClickListener { view ->
             val number = binding.editNumberSignup.text.toString()
