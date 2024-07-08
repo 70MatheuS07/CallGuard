@@ -44,7 +44,7 @@
         android:id="@+id/textViewFriends"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Friends List"
+        android:text="Lista de Amigos"
         android:textSize="18sp"
         android:paddingTop="16dp" />
 
