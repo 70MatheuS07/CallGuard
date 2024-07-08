@@ -19,7 +19,7 @@ class UserModel() : Parcelable {
 
     private var blockList: MutableList<Contact> = mutableListOf()
     private var amigoList: MutableList<Friend> = mutableListOf()
-    private var highReports: Boolean =false
+    private var highReports: Boolean = false
 
     /**
      * Retorna a lista de amigos do usuário.
@@ -35,6 +35,22 @@ class UserModel() : Parcelable {
      */
     fun addAmigo(amigo: Friend) {
         amigoList.add(amigo)
+    }
+
+    /**
+     * Remove um amigo da lista de amigos do usuário.
+     *
+     * @param amigo O objeto [Friend] a ser removido.
+     */
+    fun removeAmigo(amigo: Friend) {
+        val iterator = amigoList.iterator()
+        while (iterator.hasNext()) {
+            val item = iterator.next()
+            if (item.userName == amigo.userName) {
+                iterator.remove()
+                break
+            }
+        }
     }
 
     /**
