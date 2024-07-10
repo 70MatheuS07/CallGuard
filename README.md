@@ -25,13 +25,17 @@ Números reportados são notificados em tempo real, quando se recebe uma ligaç�
 
 
 ## Feito com
-- Android Studio.
+- IDE  - *Android Studio*.
 
-- Kotlin.
+- Linguagem de programação - *Kotlin*.
 
-- Gradle.
+- Build - *Gradle*.
 
-- Firebase.
+- Banco de dados - *Firebase*.
+
+- Documentação - *KDoc e Dokka*.
+
+- Testes - *JUnit e Roboletric*.
 
 ## Como utilizar
 
@@ -40,6 +44,21 @@ Números reportados são notificados em tempo real, quando se recebe uma ligaç�
 - Abra o projeto no Android Studio.
 
 - Execute-o em um emulador ou em um dispositivo android.
+
+## Documentação
+
+Para acessar a documentação completa do código em Html siga os seguintes passos:
+- Com o projeto já clonado em sua máquina local.
+
+- Abra o projeto no Android Studio.
+
+- Abra o terminal e execute esse comando
+
+```
+./gradlew dokkaHtml 
+```
+
+- Um arquivo index.html foi gerado dentro de Callguard/app/build/dokka/html
 
 ## Contribuições
 
